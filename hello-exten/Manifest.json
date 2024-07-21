@@ -1,0 +1,10 @@
+{
+    "manifest_version": 2,
+    "name": "Test-Hello-extension",
+    "description": "This extension shows a Hello World message!",
+    "version": "1.0",
+    "browser_action": {
+    "default_popup": "index.html",
+    "default_title": "Zesty extension"
+    }
+    }
