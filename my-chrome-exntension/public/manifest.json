@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "My React Chrome Extension",
+  "version": "1.0",
+  "description": "A Chrome extension built with React",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "192": "logo192.png",
+      "512": "logo512.png"
+    }
+  },
+  "permissions": [
+    "activeTab"
+  ]
+}        
