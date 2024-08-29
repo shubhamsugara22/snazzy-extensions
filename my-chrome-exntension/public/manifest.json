@@ -6,8 +6,7 @@
   "action": {
     "default_popup": "index.html",
     "default_icon": {
-      "192": "logo192.png",
-      "512": "logo512.png"
+      "192": "logo192.png"
     }
   },
   "permissions": [
