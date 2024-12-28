@@ -8,7 +8,10 @@ const metrics = {
 		name: resource.name,
 		type: resource.intiatorType,
 		size: resource.trasferSize
-		}))
+	}))
 };
 
-chrome.runtime.sendMessage({type: 'METRICS', payload: metrics});
+chrome.runtime.sendMessage({type: "metrics", payload: metrics });
+console.log("Content script loaded");
+
+  

@@ -6,8 +6,8 @@
 	"permissions": ["tabs", "scripting" ],
 	"host_permissions": ["<all_urls>"],
 	"action": {
-		"default_popup":,
-		"default_icon":,
+		"default_popup": "popup.html",
+		"default_icon": "er.png"
 	},
 	"background": {
 		"service_worker": "background.js"
