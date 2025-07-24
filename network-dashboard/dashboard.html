@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Network Diagnostics Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <header>
+    <h1>Network Diagnostics Dashboard</h1>
+    <nav>
+      <button class="tab-btn active" data-tab="info">Network Info</button>
+      <button class="tab-btn" data-tab="tools">Diagnostics Tools</button>
+      <button class="tab-btn" data-tab="about">About</button>
+    </nav>
+  </header>
+  <main>
+    <section id="info" class="tab-content active">
+      <div id="network-details">Loading network info...</div>
+    </section>
+    <section id="tools" class="tab-content">
+      <h2>Diagnostics Tools</h2>
+      <button id="runDiag">Run Diagnostics</button>
+      <div id="diagResult"></div>
+    </section>
+    <section id="about" class="tab-content">
+      <h2>About</h2>
+      <p>
+        Modern network diagnostics dashboard for engineers.<br>
+        Version 2.0 (<date>Saturday, July 19, 2025, 6:00 PM IST</date>)
+      </p>
+    </section>
+  </main>
+  <script src="dashboard.js"></script>
+</body>
+</html>

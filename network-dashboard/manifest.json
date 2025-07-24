@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Network Diagnostics Dashboard",
+  "version": "2.0",
+  "description": "Tab-based dashboard for network diagnostics with a modern UI.",
+  "permissions": ["tabs", "scripting", "activeTab"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open Diagnostics Dashboard"
+  },
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
+}

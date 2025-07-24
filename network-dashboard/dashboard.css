@@ -1,0 +1,80 @@
+body {
+  background: #181c20;
+  color: #f2f4f8;
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  min-height: 100vh;
+}
+header {
+  background: #20232a;
+  padding: 20px 24px 0 24px;
+  border-bottom: 1px solid #2c313c;
+}
+h1 {
+  margin: 0 0 16px 0;
+  font-size: 28px;
+  color: #61dafb;
+}
+nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.tab-btn {
+  padding: 8px 18px;
+  background: #222e38;
+  color: #61dafb;
+  font-size: 15px;
+  border: none;
+  border-radius: 24px 24px 0 0;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.2s;
+}
+.tab-btn.active, .tab-btn:hover {
+  background: #2c3750;
+  color: #fff;
+}
+main {
+  padding: 32px 24px;
+  max-width: 700px;
+  margin: auto;
+}
+.tab-content {
+  display: none;
+  animation: fadein 0.4s;
+}
+.tab-content.active {
+  display: block;
+}
+@keyframes fadein {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+#network-details, #diagResult {
+  background: #23272f;
+  border-radius: 8px;
+  padding: 18px;
+  margin-top: 14px;
+  font-size: 16px;
+  line-height: 1.7;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+button#runDiag {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  display: block;
+  padding: 12px 22px;
+  font-size: 16px;
+  background: linear-gradient(to right, #007cf0, #00dfd8);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0,127,255,0.2);
+  transition: background 0.3s;
+}
+button#runDiag:hover {
+  background: linear-gradient(to right, #00dfd8, #007cf0);
+}
