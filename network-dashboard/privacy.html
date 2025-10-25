@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Network Diagnostics Dashboard — Privacy Policy</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;line-height:1.6;color:#111;background:#fff;padding:28px;}
+    h1{color:#0b5;}
+    pre{background:#f6f8fa;padding:12px;border-radius:6px;overflow:auto}
+    .muted{color:#555;font-size:0.95rem}
+  </style>
+</head>
+<body>
+  <h1>Network Diagnostics Dashboard — Privacy Policy</h1>
+  <p class="muted">Last updated: October 25, 2025</p>
+
+  <h2>Summary</h2>
+  <p>
+    Network Diagnostics Dashboard performs only user-initiated, one-time collection of performance and network-related metrics from the active tab when you click the extension and request metrics.
+    The extension does not collect or transmit page content, keystrokes, or browsing history by default. Some optional features (public IP lookup, DNS lookup) call third-party public APIs and therefore those external providers will see the request.
+  </p>
+
+  <h2>What data the extension may read or obtain (and when)</h2>
+  <ul>
+    <li>Performance timing and resource metadata from the active page (<code>performance.getEntriesByType('resource'|'navigation'|'paint')</code>): resource names (URLs), <code>initiatorType</code>, <code>duration</code>, and size fields. Collected only when you click the extension icon and then click “Collect Network Metrics.”</li>
+    <li>Navigator.connection details when available: <code>effectiveType</code>, <code>downlink</code>, <code>rtt</code>, <code>saveData</code>. Collected only on user request.</li>
+    <li>Public IP lookup: when you run the public IP feature, the extension calls a public service (for example: <code>api.ipify.org</code>). That external provider will see the request and the public IP.</li>
+    <li>DNS resolution for a host: when you run server IP lookup, the extension may query a public DNS-over-HTTPS provider (for example: <code>dns.google</code>).</li>
+    <li>Diagnostics fetch results: when you use the Diagnostics tool to fetch a URL, the browser performs the fetch and the extension records status, timing, and optional payload size to show a diagnostics summary. The extension does not upload that response payload elsewhere by default.</li>
+  </ul>
+
+  <h2>How data is used</h2>
+  <ul>
+    <li>Collected metrics are used to create a concise diagnostics summary in the browser UI so you can triage network and performance issues.</li>
+    <li>The extension does not send collected performance metrics, resource URLs, or navigation data to third-party servers by default.</li>
+    <li>The only network calls the extension makes are to: public IP lookup services (optional), public DNS-over-HTTPS providers (optional), and any Diagnostics fetch you explicitly run from the dashboard.</li>
+  </ul>
+
+  <h2>Storage and retention</h2>
+  <ul>
+    <li>The extension does not persistently store collected metrics on disk or in cloud storage by default.</li>
+    <li>Metrics are held in memory in the dashboard UI and are cleared when the dashboard page is closed or refreshed.</li>
+  </ul>
+
+  <h2>Sharing and third parties</h2>
+  <ul>
+    <li>The extension does not upload or share page content or collected timing data to third parties by default.</li>
+    <li>Third-party services contacted (for example: <code>api.ipify.org</code>, <code>dns.google</code>) will receive standard HTTP requests; consult their privacy policies for details.</li>
+  </ul>
+
+  <h2>Security</h2>
+  <ul>
+    <li>The extension injects only a small, temporary collector function into the active tab to read performance APIs. The injected code does not modify the page or persist scripts.</li>
+    <li>No remote JavaScript or WebAssembly is loaded; all executable code is packaged with the extension.</li>
+  </ul>
+
+  <h2>Permissions rationale (brief)</h2>
+  <ul>
+    <li><strong>activeTab</strong> — allows a one-time injection into the active tab only when you click the extension so the extension can read the page’s Performance API.</li>
+    <li><strong>scripting</strong> — used to inject a small collector function into the active tab; the injected function returns a minimal JSON payload of metrics.</li>
+    <li><strong>tabs</strong> — used only to resolve the active tab’s hostname for optional server IP resolution. (This permission can be removed to further reduce scope; the extension can rely on the <code>activeTab</code>-provided tab object instead.)</li>
+  </ul>
+
+  <h2>Your choices and controls</h2>
+  <ul>
+    <li>You control when data is collected: click the extension icon and press "Collect Network Metrics" to collect metrics. No automatic or background collection occurs.</li>
+    <li>Do not use the public-IP or DNS features if you wish to avoid third-party requests — these features are optional and used only for convenience.</li>
+  </ul>
+
+  <h2>Contact</h2>
+  <p>If you have questions about this privacy policy or want the extension to support an explicit data-sharing opt-in or data export feature, open an issue in the repository or contact the maintainer at:</p>
+  <pre>maintainer@example.com</pre>
+
+  <p class="muted">Changes to this policy: We may update this policy to reflect changes to the extension. When significant changes are made, the "Last updated" date at the top of this page will be updated.</p>
+</body>
+</html>

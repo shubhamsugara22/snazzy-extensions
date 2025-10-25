@@ -37,7 +37,8 @@ nav {
 }
 main {
   padding: 32px 24px;
-  max-width: 700px;
+  /* Give more room for tables and metrics on wider screens */
+  max-width: 1100px;
   margin: auto;
 }
 .tab-content {
@@ -60,6 +61,41 @@ main {
   line-height: 1.7;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
+#metrics-container {
+  margin-top: 18px;
+}
+#metricsResult {
+  background: #1e2429;
+  border-radius: 6px;
+  padding: 12px;
+  color: #dbe8f2;
+  max-height: 420px;
+  overflow: auto;
+}
+.metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: monospace;
+}
+.metrics-table th, .metrics-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  text-align: left;
+  font-size: 13px;
+}
+.metric-controls { display:flex; gap:8px; margin-bottom:8px; }
+#collectMetrics, #refreshInfo { padding:8px 12px; border-radius:6px; border:none; cursor:pointer; background:#2c3750; color:white; }
+#collectMetrics:hover, #refreshInfo:hover { background:#3b4a6a; }
+/* Diagnostics styles */
+.diag-controls { display:flex; gap:8px; margin-bottom:10px; }
+#diagSummary { background:#23272f; padding:12px; border-radius:8px; margin-top:8px; color:#dbe8f2; }
+#diagResult { background:#1e2429; padding:12px; border-radius:8px; margin-top:8px; color:#dbe8f2; max-height:360px; overflow:auto; }
+.metric-key { display:grid; grid-template-columns: 1fr 160px 1fr; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
+.metric-key .label { color:#9fb6d6; font-weight:600; }
+.metric-key .value { text-align:right; font-family: monospace; }
+.metric-key .tip { color:#cbdff0; font-size:13px; }
+.btn-toggle-resources { margin-top:8px; padding:6px 10px; border-radius:6px; background:#2c3750; color:white; border:none; cursor:pointer; }
+.btn-toggle-resources:hover { background:#3b4a6a; }
 button#runDiag {
   margin-top: 5px;
   margin-bottom: 10px;

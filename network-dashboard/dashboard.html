@@ -16,11 +16,23 @@
   </header>
   <main>
     <section id="info" class="tab-content active">
+      <div id="network-controls">
+        <button id="collectMetrics">Collect Network Metrics</button>
+        <button id="refreshInfo">Refresh Info</button>
+      </div>
       <div id="network-details">Loading network info...</div>
+      <div id="metrics-container">
+        <h3>Resource Metrics</h3>
+        <div id="metricsResult">No metrics collected yet.</div>
+      </div>
     </section>
     <section id="tools" class="tab-content">
       <h2>Diagnostics Tools</h2>
-      <button id="runDiag">Run Diagnostics</button>
+      <div class="diag-controls">
+        <input id="diagUrl" placeholder="https://www.google.com" style="flex:1;padding:8px;border-radius:6px;border:1px solid #2c313c;background:#0f1316;color:#f2f4f8;" />
+        <button id="runDiag">Run Diagnostics</button>
+      </div>
+      <div id="diagSummary">Run diagnostics to see results and remediation tips.</div>
       <div id="diagResult"></div>
     </section>
     <section id="about" class="tab-content">
