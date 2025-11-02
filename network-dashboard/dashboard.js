@@ -1,4 +1,7 @@
 // Tab switching
+import { webVitals } from './modules/web-vitals.js';
+import { bandwidthMonitor } from './modules/bandwidth-monitor.js';
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -128,6 +131,15 @@ async function collectNetworkMetrics() {
     const loadEvent = safe(nav.loadEventEnd, null);
     const totalLoad = safe(nav.duration, null);
 
+     // Collect Web Vitals
+    const vitals = await webVitals.collectMetrics();
+    updateWebVitalsDisplay(vitals);
+
+    // Collect Bandwidth Information
+    const connectionInfo = bandwidthMonitor.measureConnectionSpeed();
+    const bandwidthUsage = bandwidthMonitor.calculateBandwidthUsage(resources);
+    updateBandwidthDisplay(connectionInfo, bandwidthUsage);
+
     keyMetrics.push({label:'DNS Lookup', value:dnsTime});
     keyMetrics.push({label:'TCP Connect', value:tcpTime});
     if (tlsTime !== null) keyMetrics.push({label:'TLS Handshake', value:tlsTime});
@@ -192,6 +204,31 @@ async function collectNetworkMetrics() {
     document.getElementById('metricsResult').innerText = 'Error collecting metrics: ' + err.message;
     console.error('collectNetworkMetrics error', err);
   }
+
+}
+
+function updateWebVitalsDisplay(vitals) {
+  document.querySelector('#lcp-metric .metric-value').textContent = 
+    `${vitals.lcp?.toFixed(2)}ms`;
+  document.querySelector('#fid-metric .metric-value').textContent = 
+    `${vitals.fid?.toFixed(2)}ms`;
+  document.querySelector('#cls-metric .metric-value').textContent = 
+    vitals.cls?.toFixed(3);
+}
+
+function updateBandwidthDisplay(connectionInfo, bandwidthUsage) {
+  const statsElement = document.getElementById('bandwidth-stats');
+  const qualityElement = document.getElementById('connection-quality');
+  
+  statsElement.innerHTML = `
+    <p>Total Transfer: ${(bandwidthUsage / 1024 / 1024).toFixed(2)} MB</p>
+  `;
+  
+  qualityElement.innerHTML = `
+    <p>Connection Type: ${connectionInfo.effectiveType}</p>
+    <p>Downlink: ${connectionInfo.downlink} Mbps</p>
+    <p>RTT: ${connectionInfo.rtt}ms</p>
+  `;
 }
 
 // Wire up collect button

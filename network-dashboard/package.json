@@ -1,0 +1,15 @@
+{
+  "name": "network-dashboard",
+  "version": "1.0.0",
+  "description": "A Chrome extension that provides detailed network metrics, resource timing, and diagnostics information for web pages.",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "web-vitals": "^5.1.0"
+  }
+}

@@ -25,7 +25,31 @@
         <h3>Resource Metrics</h3>
         <div id="metricsResult">No metrics collected yet.</div>
       </div>
-    </section>
+      <div class="metrics-container">
+  <div class="web-vitals-panel">
+    <h3>Web Vitals</h3>
+    <div class="metric-grid">
+      <div class="metric-item" id="lcp-metric">
+        <span class="metric-label">LCP</span>
+        <span class="metric-value">--</span>
+      </div>
+      <div class="metric-item" id="fid-metric">
+        <span class="metric-label">FID</span>
+        <span class="metric-value">--</span>
+      </div>
+      <div class="metric-item" id="cls-metric">
+        <span class="metric-label">CLS</span>
+        <span class="metric-value">--</span>
+      </div>
+    </div>
+  </div>  
+  <div class="bandwidth-panel">
+    <h3>Bandwidth Usage</h3>
+    <div id="bandwidth-stats"></div>
+    <div id="connection-quality"></div>
+  </div>
+</div>    
+</section>
     <section id="tools" class="tab-content">
       <h2>Diagnostics Tools</h2>
       <div class="diag-controls">
