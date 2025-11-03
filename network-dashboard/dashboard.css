@@ -70,10 +70,15 @@ main {
 }
 
 .web-vitals-panel, .bandwidth-panel {
-  background: #fff;
+  background: #23272f;
   border-radius: 8px;
   padding: 15px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.web-vitals-panel h3, .bandwidth-panel h3 {
+  margin-top: 0;
+  color: #61dafb;
 }
 
 .metric-grid {
@@ -87,20 +92,28 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
-  background: #f8f9fa;
+  padding: 15px;
+  background: #1e2429;
   border-radius: 6px;
+  border: 1px solid #2c313c;
 }
 
 .metric-label {
   font-size: 14px;
-  color: #6c757d;
+  color: #9fb6d6;
+  font-weight: 600;
 }
 
 .metric-value {
   font-size: 24px;
   font-weight: bold;
   margin-top: 5px;
+  color: #61dafb;
+}
+
+.bandwidth-panel p {
+  margin: 8px 0;
+  color: #dbe8f2;
 }
 
 #metricsResult {

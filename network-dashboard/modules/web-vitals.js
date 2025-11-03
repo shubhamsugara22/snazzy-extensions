@@ -1,30 +1,48 @@
-import { getLCP, getFID, getCLS } from 'web-vitals';
-// ISSUE: Import statement won't work in extension context
-import { getLCP, getFID, getCLS } from 'web-vitals';
-
-// CORRECTED VERSION:
 class WebVitalsCollector {
-  constructor() {
-    // Load web-vitals from CDN or include in extension
-    this.webVitalsScript = 'node_modules/web-vitals/dist/web-vitals.min.js';
-  }
-
-  async collectMetrics() {
-    return new Promise((resolve) => {
-      chrome.scripting.executeScript({
-        target: { tabId: this.activeTabId },
-        function: () => {
-          return {
-            lcp: performance.getEntriesByType('paint')
-              .find(entry => entry.name === 'largest-contentful-paint')?.startTime,
-            fid: performance.getEntriesByType('first-input')
-              .map(entry => entry.processingStart - entry.startTime)[0],
-            cls: 0 // CLS requires monitoring layout shifts over time
+  async collectMetrics(tabId) {
+    try {
+      const injection = await chrome.scripting.executeScript({
+        target: { tabId },
+        func: () => {
+          // Collect Web Vitals using Performance API
+          const vitals = {
+            lcp: null,
+            fid: null,
+            cls: 0
           };
+
+          // Get LCP (Largest Contentful Paint)
+          const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
+          if (lcpEntries.length > 0) {
+            vitals.lcp = lcpEntries[lcpEntries.length - 1].renderTime || lcpEntries[lcpEntries.length - 1].loadTime;
+          }
+
+          // Get FID (First Input Delay) - approximation using first-input
+          const fidEntries = performance.getEntriesByType('first-input');
+          if (fidEntries.length > 0) {
+            vitals.fid = fidEntries[0].processingStart - fidEntries[0].startTime;
+          }
+
+          // Get CLS (Cumulative Layout Shift)
+          const clsEntries = performance.getEntriesByType('layout-shift');
+          let clsScore = 0;
+          clsEntries.forEach(entry => {
+            if (!entry.hadRecentInput) {
+              clsScore += entry.value;
+            }
+          });
+          vitals.cls = clsScore;
+
+          return vitals;
         }
-      }, (results) => {
-        resolve(results[0]?.result || {});
       });
-    });
+
+      return injection && injection[0] && injection[0].result ? injection[0].result : { lcp: null, fid: null, cls: 0 };
+    } catch (error) {
+      console.error('Error collecting Web Vitals:', error);
+      return { lcp: null, fid: null, cls: 0 };
+    }
   }
 }
+
+export const webVitalsCollector = new WebVitalsCollector();
