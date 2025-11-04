@@ -111,9 +111,106 @@ main {
   color: #61dafb;
 }
 
+.metric-value.good {
+  color: #0cce6b;
+}
+
+.metric-value.needs-improvement {
+  color: #ffa400;
+}
+
+.metric-value.poor {
+  color: #ff4e42;
+}
+
+.metric-description {
+  font-size: 11px;
+  color: #7a8a9e;
+  margin-top: 4px;
+  text-align: center;
+}
+
 .bandwidth-panel p {
   margin: 8px 0;
   color: #dbe8f2;
+}
+
+.bandwidth-breakdown {
+  margin-top: 12px;
+}
+
+.bandwidth-breakdown h4 {
+  margin: 8px 0;
+  color: #9fb6d6;
+  font-size: 14px;
+}
+
+.breakdown-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  padding: 8px;
+  background: #1e2429;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  align-items: center;
+}
+
+.breakdown-type {
+  font-weight: 600;
+  color: #61dafb;
+}
+
+.breakdown-count {
+  color: #9fb6d6;
+  font-size: 13px;
+}
+
+.breakdown-size {
+  color: #dbe8f2;
+  font-family: monospace;
+  text-align: right;
+}
+
+.connection-type {
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.connection-type.good {
+  background: rgba(12, 206, 107, 0.2);
+  color: #0cce6b;
+}
+
+.connection-type.needs-improvement {
+  background: rgba(255, 164, 0, 0.2);
+  color: #ffa400;
+}
+
+.connection-type.poor {
+  background: rgba(255, 78, 66, 0.2);
+  color: #ff4e42;
+}
+
+.save-data-warning {
+  color: #ffa400;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.error-message {
+  background: rgba(255, 78, 66, 0.1);
+  border: 1px solid #ff4e42;
+  color: #ff9d97;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+.loading {
+  color: #61dafb;
+  font-style: italic;
 }
 
 #metricsResult {

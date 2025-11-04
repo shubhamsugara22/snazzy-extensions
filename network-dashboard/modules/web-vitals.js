@@ -8,7 +8,8 @@ class WebVitalsCollector {
           const vitals = {
             lcp: null,
             fid: null,
-            cls: 0
+            cls: 0,
+            inp: null
           };
 
           // Get LCP (Largest Contentful Paint)
@@ -33,15 +34,48 @@ class WebVitalsCollector {
           });
           vitals.cls = clsScore;
 
+          // Get INP (Interaction to Next Paint) - new Core Web Vital
+          // Calculate from event timing entries
+          const eventEntries = performance.getEntriesByType('event');
+          if (eventEntries.length > 0) {
+            const interactionDelays = eventEntries
+              .filter(entry => entry.duration > 0)
+              .map(entry => entry.duration);
+            
+            if (interactionDelays.length > 0) {
+              // INP is the 98th percentile of all interaction delays
+              interactionDelays.sort((a, b) => a - b);
+              const p98Index = Math.floor(interactionDelays.length * 0.98);
+              vitals.inp = interactionDelays[p98Index] || interactionDelays[interactionDelays.length - 1];
+            }
+          }
+
           return vitals;
         }
       });
 
-      return injection && injection[0] && injection[0].result ? injection[0].result : { lcp: null, fid: null, cls: 0 };
+      return injection && injection[0] && injection[0].result ? injection[0].result : { lcp: null, fid: null, cls: 0, inp: null };
     } catch (error) {
       console.error('Error collecting Web Vitals:', error);
-      return { lcp: null, fid: null, cls: 0 };
+      return { lcp: null, fid: null, cls: 0, inp: null };
     }
+  }
+  
+  getThreshold(metric, value) {
+    const thresholds = {
+      lcp: { good: 2500, needsImprovement: 4000 },
+      fid: { good: 100, needsImprovement: 300 },
+      cls: { good: 0.1, needsImprovement: 0.25 },
+      inp: { good: 200, needsImprovement: 500 }
+    };
+    
+    if (value === null || value === undefined) return 'unknown';
+    const t = thresholds[metric];
+    if (!t) return 'unknown';
+    
+    if (value < t.good) return 'good';
+    if (value < t.needsImprovement) return 'needs-improvement';
+    return 'poor';
   }
 }
 

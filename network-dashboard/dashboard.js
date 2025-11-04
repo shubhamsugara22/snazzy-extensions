@@ -1,3 +1,42 @@
+// Import modules
+import { webVitalsCollector } from './modules/web-vitals.js';
+import { bandwidthMonitor } from './modules/bandwidth-monitor.js';
+
+// Cache DOM elements
+const DOM = {
+  metricsResult: null,
+  networkDetails: null,
+  lcpMetric: null,
+  fidMetric: null,
+  clsMetric: null,
+  inpMetric: null,
+  bandwidthStats: null,
+  connectionQuality: null,
+  init() {
+    this.metricsResult = document.getElementById('metricsResult');
+    this.networkDetails = document.getElementById('network-details');
+    this.lcpMetric = document.querySelector('#lcp-metric .metric-value');
+    this.fidMetric = document.querySelector('#fid-metric .metric-value');
+    this.clsMetric = document.querySelector('#cls-metric .metric-value');
+    this.inpMetric = document.querySelector('#inp-metric .metric-value');
+    this.bandwidthStats = document.getElementById('bandwidth-stats');
+    this.connectionQuality = document.getElementById('connection-quality');
+  }
+};
+
+// Debounce utility
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
 // Tab switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -8,28 +47,53 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// Helper functions
+// Helper functions with proper error handling
 async function getPublicIp() {
-  const res = await fetch('https://api.ipify.org?format=json');
-  const data = await res.json();
-  return data.ip;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data.ip;
+  } catch (error) {
+    console.error('Failed to fetch public IP:', error);
+    if (error.name === 'AbortError') return 'Timeout';
+    return 'Unavailable';
+  }
 }
 
 async function getServerIp(domain) {
-  const res = await fetch(`https://dns.google/resolve?name=${domain}`);
-  const data = await res.json();
-  if (data.Answer && data.Answer.length > 0) {
-    const answer = data.Answer.find(a => a.type === 1);
-    return answer ? answer.data : 'Not found';
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(`https://dns.google/resolve?name=${domain}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.Answer && data.Answer.length > 0) {
+      const answer = data.Answer.find(a => a.type === 1);
+      return answer ? answer.data : 'Not found';
+    }
+    return 'Not found';
+  } catch (error) {
+    console.error('Failed to resolve server IP:', error);
+    if (error.name === 'AbortError') return 'Timeout';
+    return 'Unavailable';
   }
-  return 'Not found';
 }
 
 // Show network info (using current site, e.g., google.com fallback)
 async function showNetworkInfo() {
-  let domain = "www.google.com"; // fallback if tabs API isn't available
+  if (!DOM.networkDetails) return;
+  
+  DOM.networkDetails.innerHTML = '<div class="loading">Loading network info...</div>';
+  
+  let domain = "www.google.com";
+  let errorMessage = null;
+  
   try {
-    // Prefer tabId passed via query string
     const params = new URLSearchParams(location.search);
     const passedTabId = params.get('tabId');
     if (passedTabId) {
@@ -41,18 +105,31 @@ async function showNetworkInfo() {
       domain = tab && tab.url ? new URL(tab.url).hostname : domain;
     }
   } catch (e) {
-    // ignore and use fallback
+    console.warn('Could not get tab info:', e);
+    errorMessage = 'Could not access tab information. Using fallback domain.';
   }
 
-  const publicIp = await getPublicIp().catch(() => 'Unavailable');
-  const serverIp = await getServerIp(domain).catch(() => 'Unavailable');
-  document.getElementById('network-details').innerHTML = `
+  const publicIp = await getPublicIp();
+  const serverIp = await getServerIp(domain);
+  
+  let html = '';
+  if (errorMessage) {
+    html += `<div class="error-message">${errorMessage}</div>`;
+  }
+  html += `
     <strong>Your Public IP:</strong> ${publicIp}<br>
     <strong>Current Domain:</strong> ${domain}<br>
     <strong>Server IP:</strong> ${serverIp}<br>
   `;
+  
+  DOM.networkDetails.innerHTML = html;
 }
-showNetworkInfo();
+
+// Initialize after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  DOM.init();
+  showNetworkInfo();
+});
 
 // Utility: read tabId from query param if present
 function getPassedTabId() {
@@ -67,8 +144,10 @@ function getPassedTabId() {
 
 // Collect metrics from the active tab by injecting a small collector.
 async function collectNetworkMetrics() {
-  const metricsResultEl = document.getElementById('metricsResult');
-  metricsResultEl.innerText = 'Collecting metrics...';
+  if (!DOM.metricsResult) return;
+  
+  DOM.metricsResult.innerHTML = '<div class="loading">Collecting metrics...</div>';
+  
   try {
     // Determine tab id: prefer passed value from background, else query active tab
     let tabId = getPassedTabId();
@@ -76,7 +155,22 @@ async function collectNetworkMetrics() {
       const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
       tabId = tab && tab.id;
     }
-    if (!tabId) throw new Error('No active tab available to collect metrics from.');
+    
+    if (!tabId) {
+      throw new Error('NO_TAB', { cause: 'Could not identify an active tab. Please click the extension icon from the page you want to analyze.' });
+    }
+
+    // Check if we can access the tab
+    let tabInfo;
+    try {
+      tabInfo = await chrome.tabs.get(tabId);
+      if (tabInfo.url && (tabInfo.url.startsWith('chrome://') || tabInfo.url.startsWith('chrome-extension://'))) {
+        throw new Error('RESTRICTED_PAGE', { cause: 'Cannot collect metrics from Chrome internal pages. Please navigate to a regular website.' });
+      }
+    } catch (e) {
+      if (e.message === 'RESTRICTED_PAGE') throw e;
+      throw new Error('TAB_ACCESS', { cause: 'Could not access tab. The tab may have been closed.' });
+    }
 
     const injection = await chrome.scripting.executeScript({
       target: { tabId },
@@ -99,10 +193,17 @@ async function collectNetworkMetrics() {
         } : null;
         return {resources, navigation, connection, collectedAt: Date.now()};
       }
+    }).catch(err => {
+      if (err.message.includes('Cannot access')) {
+        throw new Error('PERMISSION_DENIED', { cause: 'Permission denied. Please click the extension icon from the page you want to analyze to grant access.' });
+      }
+      throw err;
     });
 
     const payload = injection && injection[0] && injection[0].result ? injection[0].result : null;
-    if (!payload) throw new Error('No metrics returned from content script.');
+    if (!payload) {
+      throw new Error('NO_DATA', { cause: 'No metrics returned. The page may not support the Performance API.' });
+    }
 
     // Summarize key metrics for easy debugging
     const conn = payload.connection;
@@ -128,14 +229,15 @@ async function collectNetworkMetrics() {
     const loadEvent = safe(nav.loadEventEnd, null);
     const totalLoad = safe(nav.duration, null);
 
-    // Collect Web Vitals
-    const vitals = await collectWebVitals(tabId);
+    // Collect Web Vitals using the module
+    const vitals = await webVitalsCollector.collectMetrics(tabId);
     updateWebVitalsDisplay(vitals);
 
-    // Collect Bandwidth Information
-    const connectionInfo = await measureConnectionSpeed(tabId);
-    const bandwidthUsage = calculateBandwidthUsage(resources);
-    updateBandwidthDisplay(connectionInfo, bandwidthUsage);
+    // Collect Bandwidth Information using the module
+    const connectionInfo = await bandwidthMonitor.measureConnectionSpeed(tabId);
+    const bandwidthUsage = bandwidthMonitor.calculateBandwidthUsage(resources);
+    const bandwidthBreakdown = bandwidthMonitor.getBandwidthBreakdown(resources);
+    updateBandwidthDisplay(connectionInfo, bandwidthUsage, bandwidthBreakdown);
 
     keyMetrics.push({label:'DNS Lookup', value:dnsTime});
     keyMetrics.push({label:'TCP Connect', value:tcpTime});
@@ -181,139 +283,138 @@ async function collectNetworkMetrics() {
     // Toggle to show full resource table
     html += '<div><button id="btnShowAll" class="btn-toggle-resources">Show full resource list</button></div>';
 
-    metricsResultEl.innerHTML = html;
+    DOM.metricsResult.innerHTML = html;
 
-    // set up the full resource view when user clicks
+    // set up the full resource view when user clicks - use requestAnimationFrame for better performance
     document.getElementById('btnShowAll').addEventListener('click', () => {
-      const maxRows = 2000;
-      let t = '<div style="margin-top:12px"><strong>Resources (full):</strong></div>';
-      t += '<div style="overflow:auto;margin-top:8px"><table class="metrics-table"><thead><tr><th>Name</th><th>Type</th><th>Duration (ms)</th><th>Transfer</th><th>Encoded</th><th>Decoded</th></tr></thead><tbody>';
-      for (let i = 0; i < Math.min(resources.length, maxRows); i++) {
-        const r = resources[i];
-        t += `<tr><td style="max-width:520px;word-break:break-all">${r.name}</td><td>${r.initiatorType}</td><td>${r.duration.toFixed(2)}</td><td>${r.transferSize}</td><td>${r.encodedBodySize}</td><td>${r.decodedBodySize}</td></tr>`;
-      }
-      t += '</tbody></table></div>';
-      metricsResultEl.insertAdjacentHTML('beforeend', t);
-      document.getElementById('btnShowAll').disabled = true;
-      document.getElementById('btnShowAll').innerText = 'Full list appended';
+      const btn = document.getElementById('btnShowAll');
+      btn.disabled = true;
+      btn.innerText = 'Loading...';
+      
+      requestAnimationFrame(() => {
+        const maxRows = 2000;
+        const batchSize = 100;
+        let t = '<div style="margin-top:12px"><strong>Resources (full):</strong></div>';
+        t += '<div style="overflow:auto;margin-top:8px"><table class="metrics-table"><thead><tr><th>Name</th><th>Type</th><th>Duration (ms)</th><th>Transfer</th><th>Encoded</th><th>Decoded</th></tr></thead><tbody id="resource-tbody">';
+        t += '</tbody></table></div>';
+        DOM.metricsResult.insertAdjacentHTML('beforeend', t);
+        
+        const tbody = document.getElementById('resource-tbody');
+        let currentIndex = 0;
+        
+        function renderBatch() {
+          const fragment = document.createDocumentFragment();
+          const end = Math.min(currentIndex + batchSize, resources.length, maxRows);
+          
+          for (let i = currentIndex; i < end; i++) {
+            const r = resources[i];
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td style="max-width:520px;word-break:break-all">${r.name}</td><td>${r.initiatorType}</td><td>${r.duration.toFixed(2)}</td><td>${r.transferSize}</td><td>${r.encodedBodySize}</td><td>${r.decodedBodySize}</td>`;
+            fragment.appendChild(tr);
+          }
+          
+          tbody.appendChild(fragment);
+          currentIndex = end;
+          
+          if (currentIndex < Math.min(resources.length, maxRows)) {
+            requestAnimationFrame(renderBatch);
+          } else {
+            btn.innerText = 'Full list loaded';
+          }
+        }
+        
+        renderBatch();
+      });
     });
   } catch (err) {
-    document.getElementById('metricsResult').innerText = 'Error collecting metrics: ' + err.message;
     console.error('collectNetworkMetrics error', err);
-  }
-
-}
-
-// Helper functions for Web Vitals and Bandwidth
-async function collectWebVitals(tabId) {
-  try {
-    const injection = await chrome.scripting.executeScript({
-      target: { tabId },
-      func: () => {
-        const vitals = { lcp: null, fid: null, cls: 0 };
-
-        // Get LCP
-        const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
-        if (lcpEntries.length > 0) {
-          vitals.lcp = lcpEntries[lcpEntries.length - 1].renderTime || lcpEntries[lcpEntries.length - 1].loadTime;
-        }
-
-        // Get FID
-        const fidEntries = performance.getEntriesByType('first-input');
-        if (fidEntries.length > 0) {
-          vitals.fid = fidEntries[0].processingStart - fidEntries[0].startTime;
-        }
-
-        // Get CLS
-        const clsEntries = performance.getEntriesByType('layout-shift');
-        let clsScore = 0;
-        clsEntries.forEach(entry => {
-          if (!entry.hadRecentInput) {
-            clsScore += entry.value;
-          }
-        });
-        vitals.cls = clsScore;
-
-        return vitals;
-      }
-    });
-
-    return injection && injection[0] && injection[0].result ? injection[0].result : { lcp: null, fid: null, cls: 0 };
-  } catch (error) {
-    console.error('Error collecting Web Vitals:', error);
-    return { lcp: null, fid: null, cls: 0 };
+    
+    let userMessage = 'Error collecting metrics: ';
+    if (err.message === 'NO_TAB' || err.message === 'RESTRICTED_PAGE' || err.message === 'TAB_ACCESS' || err.message === 'PERMISSION_DENIED' || err.message === 'NO_DATA') {
+      userMessage += err.cause || err.message;
+    } else {
+      userMessage += 'An unexpected error occurred. Check the console for details.';
+    }
+    
+    DOM.metricsResult.innerHTML = `<div class="error-message">${userMessage}</div>`;
   }
 }
 
-async function measureConnectionSpeed(tabId) {
-  try {
-    const injection = await chrome.scripting.executeScript({
-      target: { tabId },
-      func: () => {
-        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        return {
-          effectiveType: connection?.effectiveType || 'unknown',
-          downlink: connection?.downlink || 0,
-          rtt: connection?.rtt || 0,
-          saveData: connection?.saveData || false
-        };
-      }
-    });
-
-    return injection && injection[0] && injection[0].result ? injection[0].result : {
-      effectiveType: 'unknown',
-      downlink: 0,
-      rtt: 0,
-      saveData: false
-    };
-  } catch (error) {
-    console.error('Error measuring connection speed:', error);
-    return {
-      effectiveType: 'unknown',
-      downlink: 0,
-      rtt: 0,
-      saveData: false
-    };
-  }
-}
-
-function calculateBandwidthUsage(resources) {
-  return resources.reduce((total, resource) => {
-    return total + (resource.transferSize || 0);
-  }, 0);
-}
+// Helper function for Web Vitals display with thresholds
 
 function updateWebVitalsDisplay(vitals) {
-  const lcpValue = vitals.lcp !== null ? `${vitals.lcp.toFixed(2)}ms` : 'N/A';
-  const fidValue = vitals.fid !== null ? `${vitals.fid.toFixed(2)}ms` : 'N/A';
-  const clsValue = vitals.cls !== null ? vitals.cls.toFixed(3) : 'N/A';
+  if (!DOM.lcpMetric || !DOM.fidMetric || !DOM.clsMetric || !DOM.inpMetric) return;
   
-  document.querySelector('#lcp-metric .metric-value').textContent = lcpValue;
-  document.querySelector('#fid-metric .metric-value').textContent = fidValue;
-  document.querySelector('#cls-metric .metric-value').textContent = clsValue;
+  // LCP thresholds: good < 2500ms, needs improvement < 4000ms, poor >= 4000ms
+  const lcpValue = vitals.lcp !== null ? vitals.lcp.toFixed(0) : null;
+  const lcpClass = vitals.lcp !== null ? (vitals.lcp < 2500 ? 'good' : vitals.lcp < 4000 ? 'needs-improvement' : 'poor') : '';
+  DOM.lcpMetric.textContent = lcpValue ? `${lcpValue}ms` : 'N/A';
+  DOM.lcpMetric.className = `metric-value ${lcpClass}`;
+  
+  // FID thresholds: good < 100ms, needs improvement < 300ms, poor >= 300ms
+  const fidValue = vitals.fid !== null ? vitals.fid.toFixed(0) : null;
+  const fidClass = vitals.fid !== null ? (vitals.fid < 100 ? 'good' : vitals.fid < 300 ? 'needs-improvement' : 'poor') : '';
+  DOM.fidMetric.textContent = fidValue ? `${fidValue}ms` : 'N/A';
+  DOM.fidMetric.className = `metric-value ${fidClass}`;
+  
+  // CLS thresholds: good < 0.1, needs improvement < 0.25, poor >= 0.25
+  const clsValue = vitals.cls !== null ? vitals.cls.toFixed(3) : null;
+  const clsClass = vitals.cls !== null ? (vitals.cls < 0.1 ? 'good' : vitals.cls < 0.25 ? 'needs-improvement' : 'poor') : '';
+  DOM.clsMetric.textContent = clsValue || 'N/A';
+  DOM.clsMetric.className = `metric-value ${clsClass}`;
+  
+  // INP thresholds: good < 200ms, needs improvement < 500ms, poor >= 500ms
+  const inpValue = vitals.inp !== null ? vitals.inp.toFixed(0) : null;
+  const inpClass = vitals.inp !== null ? (vitals.inp < 200 ? 'good' : vitals.inp < 500 ? 'needs-improvement' : 'poor') : '';
+  DOM.inpMetric.textContent = inpValue ? `${inpValue}ms` : 'N/A';
+  DOM.inpMetric.className = `metric-value ${inpClass}`;
 }
 
-function updateBandwidthDisplay(connectionInfo, bandwidthUsage) {
-  const statsElement = document.getElementById('bandwidth-stats');
-  const qualityElement = document.getElementById('connection-quality');
+function updateBandwidthDisplay(connectionInfo, bandwidthUsage, breakdown) {
+  if (!DOM.bandwidthStats || !DOM.connectionQuality) return;
   
-  statsElement.innerHTML = `
-    <p>Total Transfer: ${(bandwidthUsage / 1024 / 1024).toFixed(2)} MB</p>
+  const totalMB = (bandwidthUsage / 1024 / 1024).toFixed(2);
+  
+  let breakdownHtml = '<div class="bandwidth-breakdown">';
+  if (breakdown && Object.keys(breakdown).length > 0) {
+    breakdownHtml += '<h4>By Resource Type:</h4>';
+    Object.entries(breakdown).forEach(([type, data]) => {
+      const sizeMB = (data.size / 1024 / 1024).toFixed(2);
+      const percentage = ((data.size / bandwidthUsage) * 100).toFixed(1);
+      breakdownHtml += `
+        <div class="breakdown-item">
+          <span class="breakdown-type">${type}</span>
+          <span class="breakdown-count">${data.count} files</span>
+          <span class="breakdown-size">${sizeMB} MB (${percentage}%)</span>
+        </div>
+      `;
+    });
+  }
+  breakdownHtml += '</div>';
+  
+  DOM.bandwidthStats.innerHTML = `
+    <p><strong>Total Transfer:</strong> ${totalMB} MB</p>
+    ${breakdownHtml}
   `;
   
-  qualityElement.innerHTML = `
-    <p>Connection Type: ${connectionInfo.effectiveType}</p>
-    <p>Downlink: ${connectionInfo.downlink} Mbps</p>
-    <p>RTT: ${connectionInfo.rtt}ms</p>
+  const qualityClass = connectionInfo.effectiveType === '4g' ? 'good' : 
+                       connectionInfo.effectiveType === '3g' ? 'needs-improvement' : 
+                       connectionInfo.effectiveType === 'slow-2g' || connectionInfo.effectiveType === '2g' ? 'poor' : '';
+  
+  DOM.connectionQuality.innerHTML = `
+    <p><strong>Connection Type:</strong> <span class="connection-type ${qualityClass}">${connectionInfo.effectiveType}</span></p>
+    <p><strong>Downlink:</strong> ${connectionInfo.downlink} Mbps</p>
+    <p><strong>RTT:</strong> ${connectionInfo.rtt}ms</p>
+    ${connectionInfo.saveData ? '<p class="save-data-warning">⚠️ Data Saver mode is enabled</p>' : ''}
   `;
 }
 
-// Wire up collect button
+// Wire up collect button with debouncing
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('collectMetrics');
-  if (btn) btn.addEventListener('click', collectNetworkMetrics);
+  if (btn) btn.addEventListener('click', debounce(collectNetworkMetrics, 500));
   const ref = document.getElementById('refreshInfo');
-  if (ref) ref.addEventListener('click', showNetworkInfo);
+  if (ref) ref.addEventListener('click', debounce(showNetworkInfo, 500));
 });
 
 // Diagnostics button logic (ping google.com or allow user custom input)

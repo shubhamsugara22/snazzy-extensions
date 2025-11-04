@@ -1,9 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Network Diagnostics Dashboard",
-  "version": "2.0",
+  "version": "2.0.0",
   "description": "Tab-based dashboard for network diagnostics with a modern UI.",
   "permissions": ["tabs", "scripting", "activeTab"],
+  "host_permissions": [
+    "https://api.ipify.org/*",
+    "https://dns.google/*"
+  ],
   "web_accessible_resources": [{
     "resources": [
       "modules/web-vitals.js",

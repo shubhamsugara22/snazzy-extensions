@@ -27,19 +27,27 @@
       </div>
       <div class="metrics-container">
   <div class="web-vitals-panel">
-    <h3>Web Vitals</h3>
+    <h3>Core Web Vitals</h3>
     <div class="metric-grid">
       <div class="metric-item" id="lcp-metric">
         <span class="metric-label">LCP</span>
         <span class="metric-value">--</span>
+        <span class="metric-description">Largest Contentful Paint</span>
       </div>
-      <div class="metric-item" id="fid-metric">
-        <span class="metric-label">FID</span>
+      <div class="metric-item" id="inp-metric">
+        <span class="metric-label">INP</span>
         <span class="metric-value">--</span>
+        <span class="metric-description">Interaction to Next Paint</span>
       </div>
       <div class="metric-item" id="cls-metric">
         <span class="metric-label">CLS</span>
         <span class="metric-value">--</span>
+        <span class="metric-description">Cumulative Layout Shift</span>
+      </div>
+      <div class="metric-item" id="fid-metric">
+        <span class="metric-label">FID</span>
+        <span class="metric-value">--</span>
+        <span class="metric-description">First Input Delay (legacy)</span>
       </div>
     </div>
   </div>  
@@ -67,6 +75,6 @@
       </p>
     </section>
   </main>
-  <script src="dashboard.js"></script>
+  <script type="module" src="dashboard.js"></script>
 </body>
 </html>
