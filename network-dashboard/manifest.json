@@ -11,7 +11,11 @@
   "web_accessible_resources": [{
     "resources": [
       "modules/web-vitals.js",
-      "modules/bandwidth-monitor.js"
+      "modules/bandwidth-monitor.js",
+      "modules/performance-score.js",
+      "modules/waterfall.js",
+      "modules/third-party-analyzer.js",
+      "modules/recommendations.js"
     ],
     "matches": ["<all_urls>"]
   }],

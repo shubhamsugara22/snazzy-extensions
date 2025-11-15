@@ -1,6 +1,10 @@
 // Import modules
 import { webVitalsCollector } from './modules/web-vitals.js';
 import { bandwidthMonitor } from './modules/bandwidth-monitor.js';
+import { performanceScoreCalculator } from './modules/performance-score.js';
+import { waterfallChart } from './modules/waterfall.js';
+import { thirdPartyAnalyzer } from './modules/third-party-analyzer.js';
+import { recommendationsEngine } from './modules/recommendations.js';
 
 // Cache DOM elements
 const DOM = {
@@ -37,15 +41,17 @@ function debounce(func, wait) {
   };
 }
 
-// Tab switching
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    document.getElementById(btn.dataset.tab).classList.add('active');
+// Tab switching - will be initialized on DOMContentLoaded
+function initTabSwitching() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
   });
-});
+}
 
 // Helper functions with proper error handling
 async function getPublicIp() {
@@ -124,12 +130,6 @@ async function showNetworkInfo() {
   
   DOM.networkDetails.innerHTML = html;
 }
-
-// Initialize after DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  DOM.init();
-  showNetworkInfo();
-});
 
 // Utility: read tabId from query param if present
 function getPassedTabId() {
@@ -229,9 +229,29 @@ async function collectNetworkMetrics() {
     const loadEvent = safe(nav.loadEventEnd, null);
     const totalLoad = safe(nav.duration, null);
 
+    // Paint metrics
+    const paints = performance.getEntriesByType ? performance.getEntriesByType('paint') : [];
+    const firstPaint = (paints.find(p=>p.name==='first-paint') || {}).startTime || null;
+    const fcp = (paints.find(p=>p.name==='first-contentful-paint') || {}).startTime || null;
+
     // Collect Web Vitals using the module
     const vitals = await webVitalsCollector.collectMetrics(tabId);
     updateWebVitalsDisplay(vitals);
+
+    // Calculate performance score
+    const performanceMetrics = {
+      lcp: vitals.lcp,
+      inp: vitals.inp,
+      cls: vitals.cls,
+      fcp: fcp,
+      ttfb: requestTime,
+      tbt: null // We'll calculate this if we add long tasks tracking
+    };
+    
+    console.log('Performance Metrics:', performanceMetrics);
+    const scoreData = performanceScoreCalculator.calculateScore(performanceMetrics);
+    console.log('Score Data:', scoreData);
+    updatePerformanceScore(scoreData);
 
     // Collect Bandwidth Information using the module
     const connectionInfo = await bandwidthMonitor.measureConnectionSpeed(tabId);
@@ -248,10 +268,6 @@ async function collectNetworkMetrics() {
     keyMetrics.push({label:'Load Event End (ms)', value:loadEvent});
     keyMetrics.push({label:'Total Load Duration (ms)', value:totalLoad});
 
-    // Paint metrics
-    const paints = performance.getEntriesByType ? performance.getEntriesByType('paint') : [];
-    const firstPaint = (paints.find(p=>p.name==='first-paint') || {}).startTime || null;
-    const fcp = (paints.find(p=>p.name==='first-contentful-paint') || {}).startTime || null;
     if (firstPaint) keyMetrics.unshift({label:'First Paint', value:firstPaint});
     if (fcp) keyMetrics.unshift({label:'First Contentful Paint', value:fcp});
 
@@ -284,6 +300,40 @@ async function collectNetworkMetrics() {
     html += '<div><button id="btnShowAll" class="btn-toggle-resources">Show full resource list</button></div>';
 
     DOM.metricsResult.innerHTML = html;
+
+    // Render waterfall chart
+    const resourcesWithStartTime = resources.map(r => ({
+      ...r,
+      startTime: r.fetchStart || r.startTime || 0
+    }));
+    waterfallChart.render(resourcesWithStartTime, 'waterfall-chart');
+    document.getElementById('waterfall-container').style.display = 'block';
+
+    // Analyze third-party resources
+    let currentDomain = 'unknown';
+    try {
+      const params = new URLSearchParams(location.search);
+      const passedTabId = params.get('tabId');
+      if (passedTabId) {
+        const tabId = parseInt(passedTabId, 10);
+        const t = await chrome.tabs.get(tabId);
+        currentDomain = t && t.url ? new URL(t.url).hostname : currentDomain;
+      }
+    } catch (e) {
+      console.warn('Could not get current domain:', e);
+    }
+    
+    const thirdPartyAnalysis = thirdPartyAnalyzer.analyze(resources, currentDomain);
+    thirdPartyAnalyzer.render(thirdPartyAnalysis, 'third-party-analysis');
+    document.getElementById('third-party-container').style.display = 'block';
+
+    // Generate recommendations
+    const recommendations = recommendationsEngine.generateRecommendations(
+      performanceMetrics,
+      resources,
+      nav
+    );
+    renderRecommendations(recommendations);
 
     // set up the full resource view when user clicks - use requestAnimationFrame for better performance
     document.getElementById('btnShowAll').addEventListener('click', () => {
@@ -370,6 +420,94 @@ function updateWebVitalsDisplay(vitals) {
   DOM.inpMetric.className = `metric-value ${inpClass}`;
 }
 
+function updatePerformanceScore(scoreData) {
+  const scoreCard = document.getElementById('performance-score-card');
+  if (!scoreCard) return;
+
+  // Don't show if score is invalid
+  if (!scoreData || isNaN(scoreData.overall) || scoreData.overall === 0) {
+    scoreCard.style.display = 'none';
+    return;
+  }
+
+  scoreCard.style.display = 'flex';
+  
+  const scoreValue = scoreCard.querySelector('.score-value');
+  const scoreProgress = scoreCard.querySelector('.score-progress');
+  const scoreDescription = scoreCard.querySelector('.score-description');
+  
+  if (scoreValue) scoreValue.textContent = scoreData.overall;
+  
+  // Update circle progress
+  if (scoreProgress) {
+    const circumference = 2 * Math.PI * 54;
+    const score = Math.max(0, Math.min(100, scoreData.overall)); // Clamp between 0-100
+    const offset = circumference - (score / 100) * circumference;
+    scoreProgress.style.strokeDasharray = `${circumference} ${circumference}`;
+    scoreProgress.style.strokeDashoffset = offset;
+    
+    // Color based on category
+    const colors = {
+      good: '#0cce6b',
+      'needs-improvement': '#ffa400',
+      poor: '#ff4e42',
+      unknown: '#61dafb'
+    };
+    scoreProgress.style.stroke = colors[scoreData.category] || '#61dafb';
+  }
+  
+  if (scoreDescription) {
+    const categoryText = {
+      good: 'Excellent performance! 🎉',
+      'needs-improvement': 'Room for improvement',
+      poor: 'Needs attention',
+      unknown: 'Limited data available'
+    };
+    scoreDescription.textContent = categoryText[scoreData.category] || 'Based on Core Web Vitals and key metrics';
+  }
+}
+
+function renderRecommendations(recommendations) {
+  const panel = document.getElementById('recommendations-panel');
+  const list = document.getElementById('recommendations-list');
+  
+  if (!panel || !list) return;
+  
+  if (recommendations.length === 0) {
+    list.innerHTML = '<div class="no-recommendations">✅ No major issues detected! Your site is performing well.</div>';
+    panel.style.display = 'block';
+    return;
+  }
+  
+  let html = '';
+  recommendations.forEach(rec => {
+    const priorityIcons = {
+      high: '🔴',
+      medium: '🟡',
+      low: '🟢'
+    };
+    
+    html += `<div class="recommendation-item priority-${rec.priority}">`;
+    html += `<div class="rec-header">`;
+    html += `<span class="rec-priority">${priorityIcons[rec.priority]} ${rec.priority.toUpperCase()}</span>`;
+    html += `<span class="rec-category">${rec.category}</span>`;
+    html += `</div>`;
+    html += `<div class="rec-issue">${rec.issue}</div>`;
+    html += `<div class="rec-suggestions">`;
+    html += `<strong>Suggestions:</strong>`;
+    html += `<ul>`;
+    rec.suggestions.forEach(suggestion => {
+      html += `<li>${suggestion}</li>`;
+    });
+    html += `</ul>`;
+    html += `</div>`;
+    html += `</div>`;
+  });
+  
+  list.innerHTML = html;
+  panel.style.display = 'block';
+}
+
 function updateBandwidthDisplay(connectionInfo, bandwidthUsage, breakdown) {
   if (!DOM.bandwidthStats || !DOM.connectionQuality) return;
   
@@ -409,16 +547,32 @@ function updateBandwidthDisplay(connectionInfo, bandwidthUsage, breakdown) {
   `;
 }
 
-// Wire up collect button with debouncing
+// Wire up all event listeners after DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize DOM cache
+  DOM.init();
+  
+  // Initialize tab switching
+  initTabSwitching();
+  
+  // Wire up collect metrics button
   const btn = document.getElementById('collectMetrics');
   if (btn) btn.addEventListener('click', debounce(collectNetworkMetrics, 500));
+  
+  // Wire up refresh info button
   const ref = document.getElementById('refreshInfo');
   if (ref) ref.addEventListener('click', debounce(showNetworkInfo, 500));
+  
+  // Wire up diagnostics button
+  const diagBtn = document.getElementById('runDiag');
+  if (diagBtn) diagBtn.onclick = runDiagnostics;
+  
+  // Load initial network info
+  showNetworkInfo();
 });
 
 // Diagnostics button logic (ping google.com or allow user custom input)
-document.getElementById('runDiag').onclick = async () => {
+async function runDiagnostics() {
   const input = document.getElementById('diagUrl');
   const endpoint = input && input.value ? input.value : "https://www.google.com";
   const summaryEl = document.getElementById('diagSummary');
@@ -457,4 +611,4 @@ document.getElementById('runDiag').onclick = async () => {
   summaryEl.innerHTML = summary + (suggestions.length ? `<div style="margin-top:8px"><strong>Quick Tips:</strong><ul>${suggestions.map(s=>`<li>${s}</li>`).join('')}</ul></div>` : '');
 
   resultEl.innerHTML = `<pre style="white-space:pre-wrap">Full diagnostic details:\nFetch duration: ${timeMs} ms\nStatus: ${status}\nPublic IP: ${publicIp}\nServer IP: ${serverIp}\nConnection: ${conn ? JSON.stringify({effectiveType:conn.effectiveType,downlink:conn.downlink,rtt:conn.rtt,saveData:conn.saveData}) : 'n/a'}</pre>`;
-};
+}

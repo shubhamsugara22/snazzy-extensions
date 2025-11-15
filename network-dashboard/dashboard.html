@@ -21,9 +21,46 @@
         <button id="refreshInfo">Refresh Info</button>
       </div>
       <div id="network-details">Loading network info...</div>
+      
+      <!-- Performance Score Card -->
+      <div id="performance-score-card" class="score-card" style="display: none;">
+        <div class="score-circle">
+          <svg width="120" height="120">
+            <circle class="score-bg" cx="60" cy="60" r="54"></circle>
+            <circle class="score-progress" cx="60" cy="60" r="54"></circle>
+          </svg>
+          <div class="score-text">
+            <span class="score-value">--</span>
+            <span class="score-label">Performance</span>
+          </div>
+        </div>
+        <div class="score-details">
+          <h3>Performance Score</h3>
+          <p class="score-description">Based on Core Web Vitals and key metrics</p>
+        </div>
+      </div>
+
+      <!-- Recommendations Panel -->
+      <div id="recommendations-panel" style="display: none;">
+        <h3>🎯 Recommendations</h3>
+        <div id="recommendations-list"></div>
+      </div>
+
       <div id="metrics-container">
         <h3>Resource Metrics</h3>
         <div id="metricsResult">No metrics collected yet.</div>
+      </div>
+      
+      <!-- Waterfall Chart -->
+      <div id="waterfall-container" style="display: none;">
+        <h3>📊 Resource Loading Timeline</h3>
+        <div id="waterfall-chart"></div>
+      </div>
+      
+      <!-- Third-party Analysis -->
+      <div id="third-party-container" style="display: none;">
+        <h3>🌐 Third-party Resources</h3>
+        <div id="third-party-analysis"></div>
       </div>
       <div class="metrics-container">
   <div class="web-vitals-panel">

@@ -213,6 +213,373 @@ main {
   font-style: italic;
 }
 
+/* Performance Score Card */
+.score-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: linear-gradient(135deg, #1e2429 0%, #2a3139 100%);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 20px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.score-circle {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.score-circle svg {
+  transform: rotate(-90deg);
+}
+
+.score-bg {
+  fill: none;
+  stroke: #2c313c;
+  stroke-width: 8;
+}
+
+.score-progress {
+  fill: none;
+  stroke: #61dafb;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease, stroke 0.3s ease;
+}
+
+.score-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.score-value {
+  display: block;
+  font-size: 32px;
+  font-weight: bold;
+  color: #61dafb;
+}
+
+.score-label {
+  display: block;
+  font-size: 12px;
+  color: #9fb6d6;
+  margin-top: 4px;
+}
+
+.score-details h3 {
+  margin: 0 0 8px 0;
+  color: #61dafb;
+  font-size: 20px;
+}
+
+.score-description {
+  margin: 0;
+  color: #dbe8f2;
+  font-size: 14px;
+}
+
+/* Recommendations Panel */
+#recommendations-panel {
+  background: #23272f;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+#recommendations-panel h3 {
+  margin-top: 0;
+  color: #61dafb;
+}
+
+.recommendation-item {
+  background: #1e2429;
+  border-left: 4px solid #61dafb;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.recommendation-item.priority-high {
+  border-left-color: #ff4e42;
+}
+
+.recommendation-item.priority-medium {
+  border-left-color: #ffa400;
+}
+
+.recommendation-item.priority-low {
+  border-left-color: #0cce6b;
+}
+
+.rec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rec-priority {
+  font-weight: 600;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+}
+
+.rec-category {
+  font-size: 12px;
+  color: #9fb6d6;
+  font-weight: 600;
+}
+
+.rec-issue {
+  color: #dbe8f2;
+  font-size: 15px;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.rec-suggestions {
+  color: #9fb6d6;
+  font-size: 14px;
+}
+
+.rec-suggestions strong {
+  color: #61dafb;
+}
+
+.rec-suggestions ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+}
+
+.rec-suggestions li {
+  margin: 4px 0;
+}
+
+.no-recommendations {
+  text-align: center;
+  padding: 24px;
+  color: #0cce6b;
+  font-size: 16px;
+}
+
+/* Waterfall Chart */
+#waterfall-container {
+  background: #23272f;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+#waterfall-container h3 {
+  margin-top: 0;
+  color: #61dafb;
+}
+
+.waterfall-chart {
+  background: #1e2429;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.waterfall-header {
+  display: grid;
+  grid-template-columns: 200px 1fr 80px;
+  gap: 12px;
+  padding: 8px;
+  border-bottom: 2px solid #2c313c;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #9fb6d6;
+  font-size: 13px;
+}
+
+.waterfall-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 80px;
+  gap: 12px;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  align-items: center;
+}
+
+.waterfall-row:hover {
+  background: rgba(97, 218, 251, 0.05);
+}
+
+.waterfall-label {
+  font-size: 12px;
+  color: #dbe8f2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.waterfall-timeline {
+  position: relative;
+  height: 20px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 3px;
+}
+
+.waterfall-bar {
+  position: absolute;
+  height: 100%;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.waterfall-bar:hover {
+  opacity: 0.8;
+}
+
+.waterfall-bar.type-script {
+  background: #f7df1e;
+}
+
+.waterfall-bar.type-css {
+  background: #61dafb;
+}
+
+.waterfall-bar.type-image {
+  background: #0cce6b;
+}
+
+.waterfall-bar.type-fetch,
+.waterfall-bar.type-xhr {
+  background: #ff4e42;
+}
+
+.waterfall-bar.type-other {
+  background: #9fb6d6;
+}
+
+.waterfall-duration {
+  font-size: 12px;
+  color: #9fb6d6;
+  text-align: right;
+  font-family: monospace;
+}
+
+.waterfall-more {
+  text-align: center;
+  padding: 12px;
+  color: #9fb6d6;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* Third-party Analysis */
+#third-party-container {
+  background: #23272f;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+#third-party-container h3 {
+  margin-top: 0;
+  color: #61dafb;
+}
+
+.third-party-analysis {
+  background: #1e2429;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.third-party-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #2c313c;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #9fb6d6;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #61dafb;
+}
+
+.third-party-domains h4 {
+  margin: 0 0 12px 0;
+  color: #9fb6d6;
+  font-size: 14px;
+}
+
+.domain-item {
+  background: rgba(255,255,255,0.02);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.domain-item:hover {
+  background: rgba(97, 218, 251, 0.05);
+}
+
+.domain-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #dbe8f2;
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.domain-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #9fb6d6;
+}
+
+.domain-count,
+.domain-size,
+.domain-duration {
+  font-family: monospace;
+}
+
+.domains-more {
+  text-align: center;
+  padding: 12px;
+  color: #9fb6d6;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.no-third-party {
+  text-align: center;
+  padding: 24px;
+  color: #9fb6d6;
+  font-style: italic;
+}
+
 #metricsResult {
   background: #1e2429;
   border-radius: 6px;
