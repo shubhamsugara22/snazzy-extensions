@@ -5,6 +5,8 @@ import { performanceScoreCalculator } from './modules/performance-score.js';
 import { waterfallChart } from './modules/waterfall.js';
 import { thirdPartyAnalyzer } from './modules/third-party-analyzer.js';
 import { recommendationsEngine } from './modules/recommendations.js';
+import { imageOptimizer } from './modules/image-optimizer.js';
+import { historicalTracker } from './modules/historical-tracker.js';
 
 // Cache DOM elements
 const DOM = {
@@ -335,6 +337,35 @@ async function collectNetworkMetrics() {
     );
     renderRecommendations(recommendations);
 
+    // Analyze images
+    const imageAnalysis = imageOptimizer.analyzeImages(resources);
+    renderImageOptimization(imageAnalysis);
+
+    // Save to history
+    const historyData = {
+      lcp: vitals.lcp,
+      inp: vitals.inp,
+      fid: vitals.fid,
+      cls: vitals.cls,
+      fcp: fcp,
+      ttfb: requestTime,
+      performanceScore: scoreData.overall,
+      totalResources: resources.length,
+      totalSize: totalTransfer,
+      thirdPartyCount: thirdPartyAnalysis.thirdPartyCount,
+      thirdPartySize: thirdPartyAnalysis.totalThirdPartySize
+    };
+    historicalTracker.saveMetrics(currentDomain, historyData);
+    
+    // Show historical stats
+    const stats = historicalTracker.getStats(currentDomain);
+    if (stats) {
+      renderHistoricalStats(stats);
+    }
+
+    // Show export options
+    document.getElementById('export-container').style.display = 'block';
+
     // set up the full resource view when user clicks - use requestAnimationFrame for better performance
     document.getElementById('btnShowAll').addEventListener('click', () => {
       const btn = document.getElementById('btnShowAll');
@@ -398,26 +429,45 @@ function updateWebVitalsDisplay(vitals) {
   // LCP thresholds: good < 2500ms, needs improvement < 4000ms, poor >= 4000ms
   const lcpValue = vitals.lcp !== null ? vitals.lcp.toFixed(0) : null;
   const lcpClass = vitals.lcp !== null ? (vitals.lcp < 2500 ? 'good' : vitals.lcp < 4000 ? 'needs-improvement' : 'poor') : '';
+  const lcpPercent = vitals.lcp !== null ? Math.min((vitals.lcp / 4000) * 100, 100) : 0;
   DOM.lcpMetric.textContent = lcpValue ? `${lcpValue}ms` : 'N/A';
   DOM.lcpMetric.className = `metric-value ${lcpClass}`;
+  updateProgressBar('lcp-metric', lcpPercent, lcpClass);
   
   // FID thresholds: good < 100ms, needs improvement < 300ms, poor >= 300ms
   const fidValue = vitals.fid !== null ? vitals.fid.toFixed(0) : null;
   const fidClass = vitals.fid !== null ? (vitals.fid < 100 ? 'good' : vitals.fid < 300 ? 'needs-improvement' : 'poor') : '';
+  const fidPercent = vitals.fid !== null ? Math.min((vitals.fid / 300) * 100, 100) : 0;
   DOM.fidMetric.textContent = fidValue ? `${fidValue}ms` : 'N/A';
   DOM.fidMetric.className = `metric-value ${fidClass}`;
+  updateProgressBar('fid-metric', fidPercent, fidClass);
   
   // CLS thresholds: good < 0.1, needs improvement < 0.25, poor >= 0.25
   const clsValue = vitals.cls !== null ? vitals.cls.toFixed(3) : null;
   const clsClass = vitals.cls !== null ? (vitals.cls < 0.1 ? 'good' : vitals.cls < 0.25 ? 'needs-improvement' : 'poor') : '';
+  const clsPercent = vitals.cls !== null ? Math.min((vitals.cls / 0.25) * 100, 100) : 0;
   DOM.clsMetric.textContent = clsValue || 'N/A';
   DOM.clsMetric.className = `metric-value ${clsClass}`;
+  updateProgressBar('cls-metric', clsPercent, clsClass);
   
   // INP thresholds: good < 200ms, needs improvement < 500ms, poor >= 500ms
   const inpValue = vitals.inp !== null ? vitals.inp.toFixed(0) : null;
   const inpClass = vitals.inp !== null ? (vitals.inp < 200 ? 'good' : vitals.inp < 500 ? 'needs-improvement' : 'poor') : '';
+  const inpPercent = vitals.inp !== null ? Math.min((vitals.inp / 500) * 100, 100) : 0;
   DOM.inpMetric.textContent = inpValue ? `${inpValue}ms` : 'N/A';
   DOM.inpMetric.className = `metric-value ${inpClass}`;
+  updateProgressBar('inp-metric', inpPercent, inpClass);
+}
+
+function updateProgressBar(metricId, percent, category) {
+  const metricItem = document.getElementById(metricId);
+  if (!metricItem) return;
+  
+  const progressBar = metricItem.querySelector('.progress-bar');
+  if (!progressBar) return;
+  
+  progressBar.style.width = `${percent}%`;
+  progressBar.className = `progress-bar ${category}`;
 }
 
 function updatePerformanceScore(scoreData) {
@@ -508,6 +558,112 @@ function renderRecommendations(recommendations) {
   panel.style.display = 'block';
 }
 
+function renderImageOptimization(analysis) {
+  const container = document.getElementById('image-optimization-analysis');
+  if (!container) return;
+
+  let html = '<div class="image-optimization">';
+  
+  // Summary
+  html += '<div class="image-summary">';
+  html += `<div class="summary-stat">`;
+  html += `<span class="stat-label">Total Images:</span>`;
+  html += `<span class="stat-value">${analysis.totalImages}</span>`;
+  html += `</div>`;
+  html += `<div class="summary-stat">`;
+  html += `<span class="stat-label">Images with Issues:</span>`;
+  html += `<span class="stat-value ${analysis.imagesWithIssues > 0 ? 'warning' : 'good'}">${analysis.imagesWithIssues}</span>`;
+  html += `</div>`;
+  html += `<div class="summary-stat">`;
+  html += `<span class="stat-label">Potential Savings:</span>`;
+  html += `<span class="stat-value">${(analysis.totalPotentialSavings / 1024 / 1024).toFixed(2)} MB</span>`;
+  html += `</div>`;
+  html += `<div class="summary-stat">`;
+  html += `<span class="stat-label">Optimization Score:</span>`;
+  html += `<span class="stat-value score-${analysis.summary.optimizationScore >= 80 ? 'good' : analysis.summary.optimizationScore >= 60 ? 'medium' : 'poor'}">${analysis.summary.optimizationScore}/100</span>`;
+  html += `</div>`;
+  html += '</div>';
+
+  // Issues list
+  if (analysis.issues.length > 0) {
+    html += '<div class="image-issues">';
+    html += '<h4>Images Needing Optimization:</h4>';
+    
+    analysis.issues.slice(0, 10).forEach(img => {
+      const fileName = img.url.split('/').pop().substring(0, 50);
+      html += '<div class="image-issue-item">';
+      html += `<div class="image-name" title="${img.url}">${fileName}</div>`;
+      html += `<div class="image-size">${(img.size / 1024).toFixed(0)} KB → Save ${(img.potentialSavings / 1024).toFixed(0)} KB</div>`;
+      html += '<ul class="issue-list">';
+      img.issues.forEach(issue => {
+        const icon = issue.severity === 'high' ? '🔴' : issue.severity === 'medium' ? '🟡' : '🟢';
+        html += `<li>${icon} ${issue.message} - ${issue.recommendation}</li>`;
+      });
+      html += '</ul>';
+      html += '</div>';
+    });
+
+    if (analysis.issues.length > 10) {
+      html += `<div class="more-issues">+ ${analysis.issues.length - 10} more images with issues</div>`;
+    }
+
+    html += '</div>';
+  } else {
+    html += '<div class="no-issues">✅ All images are well optimized!</div>';
+  }
+
+  html += '</div>';
+  
+  container.innerHTML = html;
+  document.getElementById('image-optimization-container').style.display = 'block';
+}
+
+function renderHistoricalStats(stats) {
+  const container = document.getElementById('historical-stats');
+  if (!container) return;
+
+  let html = '<div class="historical-stats">';
+  
+  html += `<div class="stats-header">`;
+  html += `<span>Based on ${stats.totalMeasurements} measurement${stats.totalMeasurements > 1 ? 's' : ''}</span>`;
+  html += `</div>`;
+
+  html += '<div class="stats-grid">';
+  
+  const metrics = [
+    { key: 'performanceScore', label: 'Performance Score', unit: '' },
+    { key: 'lcp', label: 'LCP', unit: 'ms' },
+    { key: 'inp', label: 'INP', unit: 'ms' },
+    { key: 'cls', label: 'CLS', unit: '' },
+    { key: 'ttfb', label: 'TTFB', unit: 'ms' }
+  ];
+
+  metrics.forEach(metric => {
+    if (stats.stats[metric.key]) {
+      const data = stats.stats[metric.key];
+      const trendIcon = data.trend === 'improving' ? '📈' : data.trend === 'degrading' ? '📉' : '➡️';
+      const trendClass = data.trend === 'improving' ? 'good' : data.trend === 'degrading' ? 'poor' : '';
+      
+      html += '<div class="stat-card">';
+      html += `<div class="stat-label">${metric.label}</div>`;
+      html += `<div class="stat-current">${data.current.toFixed(metric.unit === 'ms' ? 0 : 3)}${metric.unit}</div>`;
+      html += `<div class="stat-details">`;
+      html += `<span>Avg: ${data.average.toFixed(metric.unit === 'ms' ? 0 : 3)}${metric.unit}</span>`;
+      html += `<span>Min: ${data.min.toFixed(metric.unit === 'ms' ? 0 : 3)}${metric.unit}</span>`;
+      html += `<span>Max: ${data.max.toFixed(metric.unit === 'ms' ? 0 : 3)}${metric.unit}</span>`;
+      html += `</div>`;
+      html += `<div class="stat-trend ${trendClass}">${trendIcon} ${data.trend}</div>`;
+      html += '</div>';
+    }
+  });
+
+  html += '</div>';
+  html += '</div>';
+  
+  container.innerHTML = html;
+  document.getElementById('historical-tracking-container').style.display = 'block';
+}
+
 function updateBandwidthDisplay(connectionInfo, bandwidthUsage, breakdown) {
   if (!DOM.bandwidthStats || !DOM.connectionQuality) return;
   
@@ -566,6 +722,46 @@ document.addEventListener('DOMContentLoaded', () => {
   // Wire up diagnostics button
   const diagBtn = document.getElementById('runDiag');
   if (diagBtn) diagBtn.onclick = runDiagnostics;
+  
+  // Wire up export buttons
+  const exportJsonBtn = document.getElementById('export-json');
+  if (exportJsonBtn) {
+    exportJsonBtn.addEventListener('click', () => {
+      const url = historicalTracker.exportToJSON();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `network-diagnostics-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  const exportCsvBtn = document.getElementById('export-csv');
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', () => {
+      const url = historicalTracker.exportToCSV();
+      if (url) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `network-diagnostics-${Date.now()}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        alert('No data to export');
+      }
+    });
+  }
+
+  const clearHistoryBtn = document.getElementById('clear-history');
+  if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all historical data? This cannot be undone.')) {
+        historicalTracker.clearHistory();
+        document.getElementById('historical-tracking-container').style.display = 'none';
+        alert('History cleared successfully');
+      }
+    });
+  }
   
   // Load initial network info
   showNetworkInfo();

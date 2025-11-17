@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Network Diagnostics Dashboard",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Tab-based dashboard for network diagnostics with a modern UI.",
   "permissions": ["tabs", "scripting", "activeTab"],
   "host_permissions": [
@@ -15,7 +15,9 @@
       "modules/performance-score.js",
       "modules/waterfall.js",
       "modules/third-party-analyzer.js",
-      "modules/recommendations.js"
+      "modules/recommendations.js",
+      "modules/image-optimizer.js",
+      "modules/historical-tracker.js"
     ],
     "matches": ["<all_urls>"]
   }],
