@@ -841,6 +841,197 @@ main {
   background: #ff2e1f;
 }
 
+/* API Monitor */
+#api-monitor-container {
+  background: #23272f;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+#api-monitor-container h3 {
+  margin-top: 0;
+  color: #61dafb;
+}
+
+.api-monitor {
+  background: #1e2429;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.api-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #2c313c;
+}
+
+.no-api-calls {
+  text-align: center;
+  padding: 24px;
+  color: #9fb6d6;
+  font-style: italic;
+}
+
+.api-issues {
+  margin-bottom: 20px;
+}
+
+.api-issues h4 {
+  margin: 0 0 12px 0;
+  color: #9fb6d6;
+  font-size: 14px;
+}
+
+.api-issue-item {
+  background: rgba(255,255,255,0.02);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-left: 3px solid #ffa400;
+}
+
+.api-issue-item.severity-high {
+  border-left-color: #ff4e42;
+}
+
+.api-issue-item.severity-medium {
+  border-left-color: #ffa400;
+}
+
+.api-issue-item.severity-low {
+  border-left-color: #0cce6b;
+}
+
+.issue-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #dbe8f2;
+  margin-bottom: 6px;
+}
+
+.issue-recommendation {
+  font-size: 12px;
+  color: #9fb6d6;
+}
+
+.api-calls-list h4,
+.api-by-domain h4 {
+  margin: 16px 0 12px 0;
+  color: #9fb6d6;
+  font-size: 14px;
+}
+
+.api-call-item {
+  background: rgba(255,255,255,0.02);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-left: 3px solid #61dafb;
+}
+
+.call-url {
+  font-size: 13px;
+  font-weight: 600;
+  color: #dbe8f2;
+  margin-bottom: 6px;
+  font-family: monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.call-details {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.call-domain {
+  color: #9fb6d6;
+}
+
+.call-duration {
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.call-duration.fast {
+  color: #0cce6b;
+}
+
+.call-duration.medium {
+  color: #ffa400;
+}
+
+.call-duration.slow {
+  color: #ff4e42;
+}
+
+.call-size {
+  color: #9fb6d6;
+  font-family: monospace;
+}
+
+.call-status {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.call-status.status-success {
+  background: rgba(12, 206, 107, 0.2);
+  color: #0cce6b;
+}
+
+.call-status.status-error {
+  background: rgba(255, 78, 66, 0.2);
+  color: #ff4e42;
+}
+
+.call-status.status-unknown {
+  background: rgba(159, 182, 214, 0.2);
+  color: #9fb6d6;
+}
+
+.more-calls,
+.more-domains {
+  text-align: center;
+  padding: 12px;
+  color: #9fb6d6;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.domain-api-item {
+  background: rgba(255,255,255,0.02);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.domain-api-item .domain-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #dbe8f2;
+  margin-bottom: 6px;
+}
+
+.domain-api-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #9fb6d6;
+  font-family: monospace;
+}
+
 #metricsResult {
   background: #1e2429;
   border-radius: 6px;

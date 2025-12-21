@@ -7,6 +7,7 @@ import { thirdPartyAnalyzer } from './modules/third-party-analyzer.js';
 import { recommendationsEngine } from './modules/recommendations.js';
 import { imageOptimizer } from './modules/image-optimizer.js';
 import { historicalTracker } from './modules/historical-tracker.js';
+import { apiMonitor } from './modules/api-monitor.js';
 
 // Cache DOM elements
 const DOM = {
@@ -341,6 +342,10 @@ async function collectNetworkMetrics() {
     const imageAnalysis = imageOptimizer.analyzeImages(resources);
     renderImageOptimization(imageAnalysis);
 
+    // Analyze API calls
+    const apiAnalysis = apiMonitor.analyzeApiCalls(resources);
+    renderApiMonitor(apiAnalysis);
+
     // Save to history
     const historyData = {
       lcp: vitals.lcp,
@@ -616,6 +621,113 @@ function renderImageOptimization(analysis) {
   
   container.innerHTML = html;
   document.getElementById('image-optimization-container').style.display = 'block';
+}
+
+function renderApiMonitor(analysis) {
+  const container = document.getElementById('api-monitor-analysis');
+  if (!container) return;
+
+  let html = '<div class="api-monitor">';
+  
+  // Summary
+  const summary = apiMonitor.generateSummary(analysis);
+  html += '<div class="api-summary">';
+  html += `<div class="summary-stat">`;
+  html += `<span class="stat-label">Total API Calls:</span>`;
+  html += `<span class="stat-value">${summary.totalCalls}</span>`;
+  html += `</div>`;
+  html += `<div class="summary-stat">`;
+  html += `<span class="stat-label">Total Duration:</span>`;
+  html += `<span class="stat-value">${summary.totalDuration}ms</span>`;
+  html += `</div>`;
+  html += `<div class="summary-stat">`;
+  html += `<span class="stat-label">Avg Duration:</span>`;
+  html += `<span class="stat-value">${summary.avgDuration}ms</span>`;
+  html += `</div>`;
+  html += `<div class="summary-stat">`;
+  html += `<span class="stat-label">Total Size:</span>`;
+  html += `<span class="stat-value">${summary.totalSize} MB</span>`;
+  html += `</div>`;
+  html += `<div class="summary-stat">`;
+  html += `<span class="stat-label">Success Rate:</span>`;
+  html += `<span class="stat-value ${summary.successRate >= 90 ? 'good' : 'warning'}">${summary.successRate}%</span>`;
+  html += `</div>`;
+  html += '</div>';
+
+  if (analysis.totalCalls === 0) {
+    html += '<div class="no-api-calls">No API calls detected on this page</div>';
+    html += '</div>';
+    container.innerHTML = html;
+    document.getElementById('api-monitor-container').style.display = 'block';
+    return;
+  }
+
+  // Issues
+  if (analysis.issues.length > 0) {
+    html += '<div class="api-issues">';
+    html += '<h4>⚠️ Issues Detected:</h4>';
+    
+    analysis.issues.forEach(issue => {
+      const icon = issue.severity === 'high' ? '🔴' : issue.severity === 'medium' ? '🟡' : '🟢';
+      html += `<div class="api-issue-item severity-${issue.severity}">`;
+      html += `<div class="issue-header">${icon} ${issue.message}</div>`;
+      html += `<div class="issue-recommendation">💡 ${issue.recommendation}</div>`;
+      html += `</div>`;
+    });
+    
+    html += '</div>';
+  }
+
+  // Top API calls by duration
+  html += '<div class="api-calls-list">';
+  html += '<h4>Slowest API Calls:</h4>';
+  
+  analysis.calls.slice(0, 10).forEach(call => {
+    const durationClass = call.duration > 1000 ? 'slow' : call.duration > 500 ? 'medium' : 'fast';
+    html += '<div class="api-call-item">';
+    html += `<div class="call-url" title="${call.url}">${call.path}</div>`;
+    html += `<div class="call-details">`;
+    html += `<span class="call-domain">${call.domain}</span>`;
+    html += `<span class="call-duration ${durationClass}">${call.duration.toFixed(0)}ms</span>`;
+    html += `<span class="call-size">${(call.size / 1024).toFixed(1)} KB</span>`;
+    html += `<span class="call-status status-${call.status}">${call.status}</span>`;
+    html += `</div>`;
+    html += '</div>';
+  });
+
+  if (analysis.calls.length > 10) {
+    html += `<div class="more-calls">+ ${analysis.calls.length - 10} more API calls</div>`;
+  }
+
+  html += '</div>';
+
+  // By Domain
+  if (analysis.byDomain.length > 0) {
+    html += '<div class="api-by-domain">';
+    html += '<h4>API Calls by Domain:</h4>';
+    
+    analysis.byDomain.slice(0, 5).forEach(domain => {
+      html += '<div class="domain-api-item">';
+      html += `<div class="domain-name">${domain.domain}</div>`;
+      html += `<div class="domain-api-stats">`;
+      html += `<span>${domain.count} calls</span>`;
+      html += `<span>${domain.avgDuration.toFixed(0)}ms avg</span>`;
+      html += `<span>${(domain.totalSize / 1024).toFixed(1)} KB</span>`;
+      html += `</div>`;
+      html += '</div>';
+    });
+
+    if (analysis.byDomain.length > 5) {
+      html += `<div class="more-domains">+ ${analysis.byDomain.length - 5} more domains</div>`;
+    }
+
+    html += '</div>';
+  }
+
+  html += '</div>';
+  
+  container.innerHTML = html;
+  document.getElementById('api-monitor-container').style.display = 'block';
 }
 
 function renderHistoricalStats(stats) {
