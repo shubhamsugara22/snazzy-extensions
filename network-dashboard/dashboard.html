@@ -7,12 +7,23 @@
 </head>
 <body>
   <header>
-    <h1>Network Diagnostics Dashboard</h1>
+    <div class="header-content">
+      <h1>Network Diagnostics Dashboard</h1>
+      <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+        <span class="theme-icon">🌙</span>
+      
+      <!-- Quick Wins -->
+      <div id="quick-wins-panel" style="display: none;">
+        <h3>⚡ Quick Wins</h3>
+        <div id="quick-wins-list"></div>
+      </div>
+      </button>
+    </div>
     <nav>
       <button class="tab-btn active" data-tab="info">Network Info</button>
       <button class="tab-btn" data-tab="tools">Diagnostics Tools</button>
       <button class="tab-btn" data-tab="about">About</button>
-    </nav>
+            <span class="metric-badge">--</span>
   </header>
   <main>
     <section id="info" class="tab-content active">
@@ -21,7 +32,7 @@
         <button id="refreshInfo">Refresh Info</button>
       </div>
       <div id="network-details">Loading network info...</div>
-      
+            <span class="metric-badge">--</span>
       <!-- Performance Score Card -->
       <div id="performance-score-card" class="score-card" style="display: none;">
         <div class="score-circle">
@@ -30,7 +41,7 @@
             <circle class="score-progress" cx="60" cy="60" r="54"></circle>
           </svg>
           <div class="score-text">
-            <span class="score-value">--</span>
+            <span class="metric-badge">--</span>
             <span class="score-label">Performance</span>
           </div>
         </div>
@@ -39,7 +50,7 @@
           <p class="score-description">Based on Core Web Vitals and key metrics</p>
         </div>
       </div>
-
+            <span class="metric-badge">--</span>
       <!-- Recommendations Panel -->
       <div id="recommendations-panel" style="display: none;">
         <h3>🎯 Recommendations</h3>
@@ -87,6 +98,8 @@
         <div class="export-buttons">
           <button id="export-json" class="export-btn">Export as JSON</button>
           <button id="export-csv" class="export-btn">Export as CSV</button>
+            <button id="export-snapshot" class="export-btn">Download Snapshot (HTML)</button>
+            <button id="copy-snapshot-link" class="export-btn">Copy Snapshot Link</button>
           <button id="clear-history" class="export-btn danger">Clear History</button>
         </div>
       </div>

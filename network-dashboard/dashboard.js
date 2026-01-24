@@ -19,6 +19,7 @@ const DOM = {
   inpMetric: null,
   bandwidthStats: null,
   connectionQuality: null,
+  quickWinsList: null,
   init() {
     this.metricsResult = document.getElementById('metricsResult');
     this.networkDetails = document.getElementById('network-details');
@@ -28,8 +29,12 @@ const DOM = {
     this.inpMetric = document.querySelector('#inp-metric .metric-value');
     this.bandwidthStats = document.getElementById('bandwidth-stats');
     this.connectionQuality = document.getElementById('connection-quality');
+    this.quickWinsList = document.getElementById('quick-wins-list');
   }
 };
+
+// In-memory snapshot of last run for exports
+let lastSnapshotData = null;
 
 // Debounce utility
 function debounce(func, wait) {
@@ -346,6 +351,10 @@ async function collectNetworkMetrics() {
     const apiAnalysis = apiMonitor.analyzeApiCalls(resources);
     renderApiMonitor(apiAnalysis);
 
+    // Quick wins from current run
+    const quickWins = buildQuickWins(performanceMetrics, resources, thirdPartyAnalysis, imageAnalysis, apiAnalysis);
+    renderQuickWins(quickWins);
+
     // Save to history
     const historyData = {
       lcp: vitals.lcp,
@@ -361,6 +370,24 @@ async function collectNetworkMetrics() {
       thirdPartySize: thirdPartyAnalysis.totalThirdPartySize
     };
     historicalTracker.saveMetrics(currentDomain, historyData);
+
+    // Cache snapshot data for export/share
+    lastSnapshotData = buildSnapshotData({
+      domain: currentDomain,
+      performanceScore: scoreData.overall,
+      vitals,
+      keyMetrics,
+      totalResources,
+      totalTransfer,
+      largestResource,
+      connectionInfo,
+      bandwidthUsage,
+      thirdParty: {
+        count: thirdPartyAnalysis.thirdPartyCount,
+        size: thirdPartyAnalysis.totalThirdPartySize
+      },
+      quickWins
+    });
     
     // Show historical stats
     const stats = historicalTracker.getStats(currentDomain);
@@ -438,6 +465,7 @@ function updateWebVitalsDisplay(vitals) {
   DOM.lcpMetric.textContent = lcpValue ? `${lcpValue}ms` : 'N/A';
   DOM.lcpMetric.className = `metric-value ${lcpClass}`;
   updateProgressBar('lcp-metric', lcpPercent, lcpClass);
+  setBadge('lcp-metric', lcpClass);
   
   // FID thresholds: good < 100ms, needs improvement < 300ms, poor >= 300ms
   const fidValue = vitals.fid !== null ? vitals.fid.toFixed(0) : null;
@@ -446,6 +474,7 @@ function updateWebVitalsDisplay(vitals) {
   DOM.fidMetric.textContent = fidValue ? `${fidValue}ms` : 'N/A';
   DOM.fidMetric.className = `metric-value ${fidClass}`;
   updateProgressBar('fid-metric', fidPercent, fidClass);
+  setBadge('fid-metric', fidClass);
   
   // CLS thresholds: good < 0.1, needs improvement < 0.25, poor >= 0.25
   const clsValue = vitals.cls !== null ? vitals.cls.toFixed(3) : null;
@@ -454,6 +483,7 @@ function updateWebVitalsDisplay(vitals) {
   DOM.clsMetric.textContent = clsValue || 'N/A';
   DOM.clsMetric.className = `metric-value ${clsClass}`;
   updateProgressBar('cls-metric', clsPercent, clsClass);
+  setBadge('cls-metric', clsClass);
   
   // INP thresholds: good < 200ms, needs improvement < 500ms, poor >= 500ms
   const inpValue = vitals.inp !== null ? vitals.inp.toFixed(0) : null;
@@ -462,6 +492,7 @@ function updateWebVitalsDisplay(vitals) {
   DOM.inpMetric.textContent = inpValue ? `${inpValue}ms` : 'N/A';
   DOM.inpMetric.className = `metric-value ${inpClass}`;
   updateProgressBar('inp-metric', inpPercent, inpClass);
+  setBadge('inp-metric', inpClass);
 }
 
 function updateProgressBar(metricId, percent, category) {
@@ -473,6 +504,23 @@ function updateProgressBar(metricId, percent, category) {
   
   progressBar.style.width = `${percent}%`;
   progressBar.className = `progress-bar ${category}`;
+}
+
+function setBadge(metricId, category) {
+  const metricItem = document.getElementById(metricId);
+  if (!metricItem) return;
+  const badge = metricItem.querySelector('.metric-badge');
+  if (!badge) return;
+  const label = category === 'good' ? 'Pass' : category === 'needs-improvement' ? 'Needs improvement' : category === 'poor' ? 'Fail' : '--';
+  badge.textContent = label;
+  badge.className = `metric-badge ${category || ''}`;
+}
+
+function classifyStatus(value, thresholds) {
+  if (value === null || value === undefined || isNaN(value)) return {label: 'unknown', class: ''};
+  if (value < thresholds.good) return {label: 'good', class: 'good'};
+  if (value < thresholds.poor) return {label: 'needs-improvement', class: 'needs-improvement'};
+  return {label: 'poor', class: 'poor'};
 }
 
 function updatePerformanceScore(scoreData) {
@@ -815,6 +863,214 @@ function updateBandwidthDisplay(connectionInfo, bandwidthUsage, breakdown) {
   `;
 }
 
+function buildQuickWins(performanceMetrics, resources, thirdPartyAnalysis, imageAnalysis, apiAnalysis) {
+  const wins = [];
+
+  if (performanceMetrics.lcp && performanceMetrics.lcp > 4000) {
+    wins.push({
+      title: 'Improve LCP (hero render)',
+      body: 'Compress/AVIF hero media, reduce render-blocking CSS/JS, improve server TTFB.',
+      meta: `LCP: ${performanceMetrics.lcp.toFixed(0)} ms`
+    });
+  }
+
+  if (performanceMetrics.inp && performanceMetrics.inp > 500) {
+    wins.push({
+      title: 'Lower Interaction to Next Paint (INP)',
+      body: 'Trim main-thread work: defer non-critical JS, split bundles, avoid heavy sync handlers.',
+      meta: `INP: ${performanceMetrics.inp.toFixed(0)} ms`
+    });
+  }
+
+  if (resources && resources.length) {
+    const largest = resources.reduce((best, r) => (r.transferSize || 0) > (best.transferSize || 0) ? r : best, resources[0]);
+    if (largest && largest.transferSize > 300000) {
+      wins.push({
+        title: 'Shrink largest asset',
+        body: 'Compress/split the largest asset; consider code-splitting or lazy-loading.',
+        meta: `${largest.name.split('/').pop()} · ${(largest.transferSize/1024).toFixed(1)} KB`
+      });
+    }
+  }
+
+  if (thirdPartyAnalysis && thirdPartyAnalysis.totalThirdPartySize > 0) {
+    wins.push({
+      title: 'Optimize third-parties',
+      body: 'Async/defer third-party scripts; preconnect critical 3P domains to cut DNS/TCP cost.',
+      meta: `3P bytes: ${(thirdPartyAnalysis.totalThirdPartySize/1024).toFixed(1)} KB`
+    });
+  }
+
+  if (apiAnalysis && apiAnalysis.slowestCall) {
+    wins.push({
+      title: 'Speed up API endpoint',
+      body: 'Add CDN/cache headers, trim payload, and reduce server latency on the slowest call.',
+      meta: `${apiAnalysis.slowestCall.url} · ${apiAnalysis.slowestCall.duration.toFixed(0)} ms`
+    });
+  }
+
+  if (imageAnalysis && imageAnalysis.oversized?.length) {
+    wins.push({
+      title: 'Optimize large images',
+      body: 'Convert to AVIF/WebP, serve responsive sizes, and lazy-load below-the-fold media.',
+      meta: `${imageAnalysis.oversized.length} images flagged`
+    });
+  }
+
+  return wins.slice(0, 4);
+}
+
+function renderQuickWins(wins) {
+  const panel = document.getElementById('quick-wins-panel');
+  if (!panel || !DOM.quickWinsList) return;
+  if (!wins || !wins.length) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+  DOM.quickWinsList.innerHTML = wins.map(win => `
+    <div class="quick-win">
+      <h4>${win.title}</h4>
+      <div class="win-body">${win.body}</div>
+      <div class="win-meta">${win.meta || ''}</div>
+    </div>
+  `).join('');
+}
+
+function buildSnapshotData(payload) {
+  return {
+    generatedAt: new Date().toISOString(),
+    domain: payload.domain,
+    performanceScore: payload.performanceScore,
+    vitals: payload.vitals,
+    keyMetrics: payload.keyMetrics,
+    totals: {
+      totalResources: payload.totalResources,
+      totalTransfer: payload.totalTransfer,
+      largestResource: payload.largestResource
+    },
+    connection: payload.connectionInfo,
+    bandwidth: payload.bandwidthUsage,
+    thirdParty: payload.thirdParty,
+    quickWins: payload.quickWins
+  };
+}
+
+function buildSnapshotHtml(data) {
+  const style = `
+    body{font-family:Arial, sans-serif; margin:24px; color:#1a1d23;}
+    h1{margin:0 0 12px 0;}
+    .section{margin:16px 0; padding:12px; border:1px solid #e1e4e8; border-radius:8px; background:#fff;}
+    .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px;}
+    .card{padding:10px; border:1px solid #e1e4e8; border-radius:6px; background:#f9fafb;}
+    .badge{padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700;}
+    .badge.good{background:#e6f4ea; color:#146c2e;}
+    .badge.needs-improvement{background:#fff4e5; color:#a45e00;}
+    .badge.poor{background:#ffecef; color:#b3001b;}
+    .muted{color:#555; font-size:13px;}
+    ul{margin:8px 0 0 18px;}
+  `;
+
+  const vitals = data.vitals || {};
+  const badge = (val, thresholds) => {
+    if (val === null || val === undefined || isNaN(val)) return '<span class="badge">N/A</span>';
+    if (val < thresholds.good) return '<span class="badge good">Pass</span>';
+    if (val < thresholds.poor) return '<span class="badge needs-improvement">Needs improvement</span>';
+    return '<span class="badge poor">Fail</span>';
+  };
+
+  const quickWinsHtml = (data.quickWins || []).map(w => `
+    <div class="card"><strong>${w.title}</strong><br/><span class="muted">${w.meta||''}</span><br/>${w.body}</div>
+  `).join('') || '<div class="muted">No quick wins generated.</div>';
+
+  return `<!doctype html>
+  <html><head><meta charset="utf-8"/><title>Network Snapshot</title><style>${style}</style></head><body>
+  <h1>Network Snapshot</h1>
+  <div class="muted">Domain: ${data.domain || 'n/a'} · Generated: ${data.generatedAt}</div>
+
+  <div class="section">
+    <h3>Performance Score</h3>
+    <div class="grid">
+      <div class="card"><strong>Score</strong><br/>${data.performanceScore ?? 'n/a'}</div>
+      <div class="card"><strong>Total Resources</strong><br/>${data.totals.totalResources}</div>
+      <div class="card"><strong>Total Transfer</strong><br/>${(data.totals.totalTransfer/1024/1024).toFixed(2)} MB</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Core Web Vitals</h3>
+    <div class="grid">
+      <div class="card">LCP: ${vitals.lcp ? vitals.lcp.toFixed(0)+' ms' : 'n/a'} ${badge(vitals.lcp, {good:2500, poor:4000})}</div>
+      <div class="card">INP: ${vitals.inp ? vitals.inp.toFixed(0)+' ms' : 'n/a'} ${badge(vitals.inp, {good:200, poor:500})}</div>
+      <div class="card">CLS: ${vitals.cls || vitals.cls === 0 ? vitals.cls.toFixed(3) : 'n/a'} ${badge(vitals.cls, {good:0.1, poor:0.25})}</div>
+      <div class="card">FID: ${vitals.fid ? vitals.fid.toFixed(0)+' ms' : 'n/a'} ${badge(vitals.fid, {good:100, poor:300})}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Connection & Bandwidth</h3>
+    <div class="grid">
+      <div class="card">Connection: ${data.connection?.effectiveType || 'n/a'}</div>
+      <div class="card">Downlink: ${data.connection?.downlink || 'n/a'} Mbps</div>
+      <div class="card">RTT: ${data.connection?.rtt || 'n/a'} ms</div>
+      <div class="card">Total Transfer: ${(data.bandwidth?.totalBytes||0)/1024/1024.toFixed?.(2)}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Quick Wins</h3>
+    ${quickWinsHtml}
+  </div>
+
+  <div class="section">
+    <h3>Key Metrics</h3>
+    <ul>
+      ${(data.keyMetrics||[]).map(k => `<li><strong>${k.label}:</strong> ${k.value}</li>`).join('')}
+    </ul>
+  </div>
+
+  <div class="section">
+    <h3>Third-party</h3>
+    <div class="grid">
+      <div class="card">Count: ${data.thirdParty?.count ?? 'n/a'}</div>
+      <div class="card">Bytes: ${(data.thirdParty?.size||0)/1024/1024.toFixed?.(2)}</div>
+    </div>
+  </div>
+  </body></html>`;
+}
+
+function downloadSnapshotHtml(data) {
+  const html = buildSnapshotHtml(data);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'network-snapshot.html';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function copySnapshotLink(data) {
+  const html = buildSnapshotHtml(data);
+  const base64 = btoa(unescape(encodeURIComponent(html)));
+  const dataUrl = `data:text/html;base64,${base64}`;
+  try {
+    await navigator.clipboard.writeText(dataUrl);
+    alert('Snapshot link copied to clipboard');
+  } catch (err) {
+    console.error('Copy failed', err);
+    alert('Copy failed; please try again');
+  }
+}
+
+// Helper function to update theme icon
+function updateThemeIcon(isLight) {
+  const themeIcon = document.querySelector('.theme-icon');
+  if (themeIcon) {
+    themeIcon.textContent = isLight ? '☀️' : '🌙';
+  }
+}
+
 // Wire up all event listeners after DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize DOM cache
@@ -864,6 +1120,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const exportSnapshotBtn = document.getElementById('export-snapshot');
+  if (exportSnapshotBtn) {
+    exportSnapshotBtn.addEventListener('click', () => {
+      if (!lastSnapshotData) {
+        alert('Run a scan first to generate a snapshot.');
+        return;
+      }
+      downloadSnapshotHtml(lastSnapshotData);
+    });
+  }
+
+  const copySnapshotLinkBtn = document.getElementById('copy-snapshot-link');
+  if (copySnapshotLinkBtn) {
+    copySnapshotLinkBtn.addEventListener('click', () => {
+      if (!lastSnapshotData) {
+        alert('Run a scan first to generate a snapshot.');
+        return;
+      }
+      copySnapshotLink(lastSnapshotData);
+    });
+  }
+
   const clearHistoryBtn = document.getElementById('clear-history');
   if (clearHistoryBtn) {
     clearHistoryBtn.addEventListener('click', () => {
@@ -872,6 +1150,23 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('historical-tracking-container').style.display = 'none';
         alert('History cleared successfully');
       }
+    });
+  }
+
+  // Wire up theme toggle
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  if (themeToggleBtn) {
+    // Load saved theme preference
+    const savedTheme = localStorage.getItem('dashboard-theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-theme');
+      updateThemeIcon(true);
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      const isLight = document.body.classList.toggle('light-theme');
+      localStorage.setItem('dashboard-theme', isLight ? 'light' : 'dark');
+      updateThemeIcon(isLight);
     });
   }
   
