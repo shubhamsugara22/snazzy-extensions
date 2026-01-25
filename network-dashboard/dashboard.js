@@ -940,13 +940,21 @@ function renderQuickWins(wins) {
     return;
   }
   panel.style.display = 'block';
-  DOM.quickWinsList.innerHTML = wins.map(win => `
+  DOM.quickWinsList.innerHTML = wins.map(win => {
+    // Escape HTML characters
+    const escapeHtml = (str) => {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    };
+    return `
     <div class="quick-win">
-      <h4>${win.title}</h4>
-      <div class="win-body">${win.body}</div>
-      <div class="win-meta">${win.meta || ''}</div>
+      <h4>${escapeHtml(win.title)}</h4>
+      <div class="win-body">${escapeHtml(win.body)}</div>
+      <div class="win-meta">${escapeHtml(win.meta || '')}</div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function buildSnapshotData(payload) {

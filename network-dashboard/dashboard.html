@@ -11,19 +11,13 @@
       <h1>Network Diagnostics Dashboard</h1>
       <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
         <span class="theme-icon">🌙</span>
-      
-      <!-- Quick Wins -->
-      <div id="quick-wins-panel" style="display: none;">
-        <h3>⚡ Quick Wins</h3>
-        <div id="quick-wins-list"></div>
-      </div>
       </button>
     </div>
     <nav>
       <button class="tab-btn active" data-tab="info">Network Info</button>
       <button class="tab-btn" data-tab="tools">Diagnostics Tools</button>
       <button class="tab-btn" data-tab="about">About</button>
-            <span class="metric-badge">--</span>
+    </nav>
   </header>
   <main>
     <section id="info" class="tab-content active">
@@ -32,7 +26,7 @@
         <button id="refreshInfo">Refresh Info</button>
       </div>
       <div id="network-details">Loading network info...</div>
-            <span class="metric-badge">--</span>
+      
       <!-- Performance Score Card -->
       <div id="performance-score-card" class="score-card" style="display: none;">
         <div class="score-circle">
@@ -41,7 +35,7 @@
             <circle class="score-progress" cx="60" cy="60" r="54"></circle>
           </svg>
           <div class="score-text">
-            <span class="metric-badge">--</span>
+            <div class="score-value">--</div>
             <span class="score-label">Performance</span>
           </div>
         </div>
@@ -50,15 +44,71 @@
           <p class="score-description">Based on Core Web Vitals and key metrics</p>
         </div>
       </div>
-            <span class="metric-badge">--</span>
+
+      <!-- Quick Wins Panel -->
+      <div id="quick-wins-panel" style="display: none;">
+        <h3>⚡ Quick Wins</h3>
+        <div id="quick-wins-list"></div>
+      </div>
+
       <!-- Recommendations Panel -->
       <div id="recommendations-panel" style="display: none;">
         <h3>🎯 Recommendations</h3>
         <div id="recommendations-list"></div>
       </div>
 
+      <div class="metrics-container">
+        <div class="web-vitals-panel">
+          <h3>Core Web Vitals</h3>
+          <div class="metric-grid">
+            <div class="metric-item" id="lcp-metric">
+              <span class="metric-label">LCP</span>
+              <span class="metric-value">--</span>
+              <div class="metric-progress">
+                <div class="progress-bar"></div>
+              </div>
+              <span class="metric-badge">--</span>
+              <span class="metric-description">Largest Contentful Paint</span>
+            </div>
+            <div class="metric-item" id="inp-metric">
+              <span class="metric-label">INP</span>
+              <span class="metric-value">--</span>
+              <div class="metric-progress">
+                <div class="progress-bar"></div>
+              </div>
+              <span class="metric-badge">--</span>
+              <span class="metric-description">Interaction to Next Paint</span>
+            </div>
+            <div class="metric-item" id="cls-metric">
+              <span class="metric-label">CLS</span>
+              <span class="metric-value">--</span>
+              <div class="metric-progress">
+                <div class="progress-bar"></div>
+              </div>
+              <span class="metric-badge">--</span>
+              <span class="metric-description">Cumulative Layout Shift</span>
+            </div>
+            <div class="metric-item" id="fid-metric">
+              <span class="metric-label">FID</span>
+              <span class="metric-value">--</span>
+              <div class="metric-progress">
+                <div class="progress-bar"></div>
+              </div>
+              <span class="metric-badge">--</span>
+              <span class="metric-description">First Input Delay (legacy)</span>
+            </div>
+          </div>
+        </div>
+        <div class="bandwidth-panel">
+          <h3>Bandwidth Usage</h3>
+          <div id="bandwidth-stats"></div>
+          <div id="connection-quality"></div>
+        </div>
+      </div>
+
       <div id="metrics-container">
         <h3>Resource Metrics</h3>
+        <button id="btnShowAll" style="margin-bottom: 12px; padding: 8px 16px; background: #0969da; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 13px;">Show All Resources</button>
         
         <!-- Filtering & Sorting Controls -->
         <div id="filter-sort-controls" style="display: none; margin-bottom: 16px; padding: 12px; background: #1a1d23; border-radius: 8px;">
@@ -158,6 +208,41 @@
       <!-- Historical Tracking -->
       <div id="historical-tracking-container" style="display: none;">
         <h3>📈 Historical Tracking</h3>
+        <div id="historical-stats"></div>
+      </div>
+
+      <!-- Export Options -->
+      <div id="export-container" style="display: none;">
+        <h3>💾 Export Data</h3>
+        <div class="export-buttons">
+          <button id="export-json" class="export-btn">Export as JSON</button>
+          <button id="export-csv" class="export-btn">Export as CSV</button>
+          <button id="export-snapshot" class="export-btn">Download Snapshot (HTML)</button>
+          <button id="copy-snapshot-link" class="export-btn">Copy Snapshot Link</button>
+          <button id="clear-history" class="export-btn danger">Clear History</button>
+        </div>
+      </div>
+    </section>
+    <section id="tools" class="tab-content">
+      <h2>Diagnostics Tools</h2>
+      <div class="diag-controls">
+        <input id="diagUrl" placeholder="https://www.google.com" style="flex:1;padding:8px;border-radius:6px;border:1px solid #2c313c;background:#0f1316;color:#f2f4f8;" />
+        <button id="runDiag">Run Diagnostics</button>
+      </div>
+      <div id="diagSummary">Run diagnostics to see results and remediation tips.</div>
+      <div id="diagResult"></div>
+    </section>
+    <section id="about" class="tab-content">
+      <h2>About</h2>
+      <p>
+        Modern network diagnostics dashboard for engineers.<br>
+        Version 2.0 (<date>Saturday, July 19, 2025, 6:00 PM IST</date>)
+      </p>
+    </section>
+  </main>
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>
         <div id="historical-stats"></div>
       </div>
 
