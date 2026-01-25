@@ -61,7 +61,9 @@ body.light-theme .waterfall-chart,
 body.light-theme .third-party-analysis,
 body.light-theme .image-optimization,
 body.light-theme .api-monitor,
-body.light-theme .historical-stats {
+body.light-theme .historical-stats,
+body.light-theme .web-vitals-panel,
+body.light-theme .bandwidth-panel {
   background: #f6f8fa;
   border: 1px solid #e1e4e8;
   color: #1a1d23;
@@ -84,7 +86,9 @@ body.light-theme .domain-api-item {
 body.light-theme .metric-label,
 body.light-theme .stat-label,
 body.light-theme h3,
-body.light-theme h4 {
+body.light-theme h4,
+body.light-theme .web-vitals-panel h3,
+body.light-theme .bandwidth-panel h3 {
   color: #0366d6;
   font-weight: 600;
 }
