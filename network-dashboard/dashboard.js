@@ -843,10 +843,10 @@ function updateBandwidthDisplay(connectionInfo, bandwidthUsage, breakdown) {
   
   let breakdownHtml = '<div class="bandwidth-breakdown">';
   if (breakdown && Object.keys(breakdown).length > 0) {
-    breakdownHtml += '<h4>By Resource Type:</h4>';
+    breakdownHtml += '<h4>Resource Breakdown:</h4>';
     Object.entries(breakdown).forEach(([type, data]) => {
       const sizeMB = (data.size / 1024 / 1024).toFixed(2);
-      const percentage = ((data.size / bandwidthUsage) * 100).toFixed(1);
+      const percentage = bandwidthUsage > 0 ? ((data.size / bandwidthUsage) * 100).toFixed(1) : 0;
       breakdownHtml += `
         <div class="breakdown-item">
           <span class="breakdown-type">${type}</span>
@@ -863,15 +863,21 @@ function updateBandwidthDisplay(connectionInfo, bandwidthUsage, breakdown) {
     ${breakdownHtml}
   `;
   
-  const qualityClass = connectionInfo.effectiveType === '4g' ? 'good' : 
-                       connectionInfo.effectiveType === '3g' ? 'needs-improvement' : 
-                       connectionInfo.effectiveType === 'slow-2g' || connectionInfo.effectiveType === '2g' ? 'poor' : '';
+  // Safe access to connectionInfo properties
+  const effectiveType = connectionInfo?.effectiveType || 'unknown';
+  const downlink = connectionInfo?.downlink ?? 'N/A';
+  const rtt = connectionInfo?.rtt ?? 'N/A';
+  const saveData = connectionInfo?.saveData || false;
+  
+  const qualityClass = effectiveType === '4g' ? 'good' : 
+                       effectiveType === '3g' ? 'needs-improvement' : 
+                       (effectiveType === 'slow-2g' || effectiveType === '2g') ? 'poor' : '';
   
   DOM.connectionQuality.innerHTML = `
-    <p><strong>Connection Type:</strong> <span class="connection-type ${qualityClass}">${connectionInfo.effectiveType}</span></p>
-    <p><strong>Downlink:</strong> ${connectionInfo.downlink} Mbps</p>
-    <p><strong>RTT:</strong> ${connectionInfo.rtt}ms</p>
-    ${connectionInfo.saveData ? '<p class="save-data-warning">⚠️ Data Saver mode is enabled</p>' : ''}
+    <p><strong>Connection Type:</strong> <span class="connection-type ${qualityClass}">${effectiveType}</span></p>
+    <p><strong>Downlink:</strong> ${downlink} Mbps</p>
+    <p><strong>RTT:</strong> ${rtt}ms</p>
+    ${saveData ? '<p class="save-data-warning">⚠️ Data Saver mode is enabled</p>' : ''}
   `;
 }
 

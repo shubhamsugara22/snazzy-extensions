@@ -344,7 +344,7 @@ main {
 
 .metrics-container {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 20px;
   margin: 20px 0;
 }
@@ -453,8 +453,19 @@ main {
 }
 
 .bandwidth-panel p {
-  margin: 8px 0;
+  margin: 12px 0;
   color: #dbe8f2;
+  font-size: 14px;
+}
+
+#bandwidth-stats {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #30363d;
+}
+
+#connection-quality {
+  margin-top: 12px;
 }
 
 .bandwidth-breakdown {
