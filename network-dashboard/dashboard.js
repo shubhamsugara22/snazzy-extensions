@@ -36,6 +36,10 @@ const DOM = {
 // In-memory snapshot of last run for exports
 let lastSnapshotData = null;
 
+// Cache current resources for filtering/sorting
+let currentResources = [];
+let filteredResources = [];
+
 // Debounce utility
 function debounce(func, wait) {
   let timeout;
@@ -404,6 +408,10 @@ async function collectNetworkMetrics() {
       btn.disabled = true;
       btn.innerText = 'Loading...';
       
+      // Cache resources for filtering/sorting
+      currentResources = [...resources];
+      filteredResources = [...resources];
+      
       requestAnimationFrame(() => {
         const maxRows = 2000;
         const batchSize = 100;
@@ -411,6 +419,10 @@ async function collectNetworkMetrics() {
         t += '<div style="overflow:auto;margin-top:8px"><table class="metrics-table"><thead><tr><th>Name</th><th>Type</th><th>Duration (ms)</th><th>Transfer</th><th>Encoded</th><th>Decoded</th></tr></thead><tbody id="resource-tbody">';
         t += '</tbody></table></div>';
         DOM.metricsResult.insertAdjacentHTML('beforeend', t);
+        
+        // Show filter controls
+        const filterControls = document.getElementById('filter-sort-controls');
+        if (filterControls) filterControls.style.display = 'block';
         
         const tbody = document.getElementById('resource-tbody');
         let currentIndex = 0;
@@ -1013,7 +1025,7 @@ function buildSnapshotHtml(data) {
       <div class="card">Connection: ${data.connection?.effectiveType || 'n/a'}</div>
       <div class="card">Downlink: ${data.connection?.downlink || 'n/a'} Mbps</div>
       <div class="card">RTT: ${data.connection?.rtt || 'n/a'} ms</div>
-      <div class="card">Total Transfer: ${(data.bandwidth?.totalBytes||0)/1024/1024.toFixed?.(2)}</div>
+      <div class="card">Total Transfer: ${((data.bandwidth?.totalBytes||0)/1024/1024).toFixed(2)} MB</div>
     </div>
   </div>
 
@@ -1033,7 +1045,7 @@ function buildSnapshotHtml(data) {
     <h3>Third-party</h3>
     <div class="grid">
       <div class="card">Count: ${data.thirdParty?.count ?? 'n/a'}</div>
-      <div class="card">Bytes: ${(data.thirdParty?.size||0)/1024/1024.toFixed?.(2)}</div>
+      <div class="card">Bytes: ${((data.thirdParty?.size||0)/1024/1024).toFixed(2)} MB</div>
     </div>
   </div>
   </body></html>`;
@@ -1063,13 +1075,100 @@ async function copySnapshotLink(data) {
   }
 }
 
-// Helper function to update theme icon
 function updateThemeIcon(isLight) {
   const themeIcon = document.querySelector('.theme-icon');
   if (themeIcon) {
     themeIcon.textContent = isLight ? '☀️' : '🌙';
   }
 }
+
+// Filter and sort utilities
+function getFilterCriteria() {
+  return {
+    type: document.getElementById('filter-type')?.value || '',
+    sizeMin: parseFloat(document.getElementById('filter-size-min')?.value || 0),
+    sizeMax: parseFloat(document.getElementById('filter-size-max')?.value || Infinity),
+    durationMin: parseFloat(document.getElementById('filter-duration-min')?.value || 0),
+    durationMax: parseFloat(document.getElementById('filter-duration-max')?.value || Infinity),
+    sortBy: document.getElementById('sort-by')?.value || 'name',
+    sortOrder: document.getElementById('sort-order')?.value || 'asc'
+  };
+}
+
+function applyFiltersAndSort() {
+  const criteria = getFilterCriteria();
+  
+  // Filter
+  filteredResources = currentResources.filter(r => {
+    const sizeKb = (r.transferSize || 0) / 1024;
+    const typeMatch = !criteria.type || r.initiatorType === criteria.type;
+    const sizeMatch = sizeKb >= criteria.sizeMin && sizeKb <= criteria.sizeMax;
+    const durationMatch = r.duration >= criteria.durationMin && r.duration <= criteria.durationMax;
+    return typeMatch && sizeMatch && durationMatch;
+  });
+  
+  // Sort
+  filteredResources.sort((a, b) => {
+    let cmp = 0;
+    switch (criteria.sortBy) {
+      case 'name':
+        cmp = a.name.localeCompare(b.name);
+        break;
+      case 'size':
+        cmp = (a.transferSize || 0) - (b.transferSize || 0);
+        break;
+      case 'duration':
+        cmp = a.duration - b.duration;
+        break;
+      case 'type':
+        cmp = a.initiatorType.localeCompare(b.initiatorType);
+        break;
+    }
+    return criteria.sortOrder === 'asc' ? cmp : -cmp;
+  });
+  
+  // Render filtered table
+  renderFilteredResourcesTable();
+}
+
+function renderFilteredResourcesTable() {
+  const existingTable = document.querySelector('#resource-tbody');
+  if (!existingTable) return;
+  
+  const tbody = existingTable;
+  tbody.innerHTML = '';
+  
+  if (filteredResources.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="6" style="text-align:center; padding:16px; color:#8b949e;">No resources match the selected filters.</td>';
+    tbody.appendChild(tr);
+    return;
+  }
+  
+  const fragment = document.createDocumentFragment();
+  filteredResources.slice(0, 2000).forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="max-width:520px;word-break:break-all">${r.name}</td><td>${r.initiatorType}</td><td>${r.duration.toFixed(2)}</td><td>${r.transferSize}</td><td>${r.encodedBodySize}</td><td>${r.decodedBodySize}</td>`;
+    fragment.appendChild(tr);
+  });
+  
+  tbody.appendChild(fragment);
+}
+
+function resetFilters() {
+  document.getElementById('filter-type').value = '';
+  document.getElementById('filter-size-min').value = '';
+  document.getElementById('filter-size-max').value = '';
+  document.getElementById('filter-duration-min').value = '';
+  document.getElementById('filter-duration-max').value = '';
+  document.getElementById('sort-by').value = 'name';
+  document.getElementById('sort-order').value = 'asc';
+  
+  filteredResources = [...currentResources];
+  renderFilteredResourcesTable();
+}
+
+// Helper function to update theme icon
 
 // Wire up all event listeners after DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -1141,6 +1240,29 @@ document.addEventListener('DOMContentLoaded', () => {
       copySnapshotLink(lastSnapshotData);
     });
   }
+
+  // Wire up filter and sort controls
+  const applyFiltersBtn = document.getElementById('apply-filters');
+  if (applyFiltersBtn) {
+    applyFiltersBtn.addEventListener('click', applyFiltersAndSort);
+  }
+
+  const resetFiltersBtn = document.getElementById('reset-filters');
+  if (resetFiltersBtn) {
+    resetFiltersBtn.addEventListener('click', resetFilters);
+  }
+
+  // Auto-apply filters on input change for real-time updates (optional)
+  const filterInputs = [
+    'filter-type', 'filter-size-min', 'filter-size-max',
+    'filter-duration-min', 'filter-duration-max', 'sort-by', 'sort-order'
+  ];
+  filterInputs.forEach(id => {
+    const elem = document.getElementById(id);
+    if (elem) {
+      elem.addEventListener('change', applyFiltersAndSort);
+    }
+  });
 
   const clearHistoryBtn = document.getElementById('clear-history');
   if (clearHistoryBtn) {

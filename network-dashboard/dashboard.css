@@ -1404,3 +1404,109 @@ button#runDiag {
 button#runDiag:hover {
   background: linear-gradient(to right, #00dfd8, #007cf0);
 }
+/* Filter and Sort Styles */
+#filter-sort-controls {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+body.light-theme #filter-sort-controls {
+  background: #f6f8fa;
+  border: 1px solid #e1e4e8;
+}
+
+#filter-sort-controls label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+body.light-theme #filter-sort-controls label {
+  color: #57606a;
+}
+
+#filter-sort-controls select,
+#filter-sort-controls input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: #c9d1d9;
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+body.light-theme #filter-sort-controls select,
+body.light-theme #filter-sort-controls input {
+  background: #ffffff;
+  border-color: #d0d7de;
+  color: #24292f;
+}
+
+#filter-sort-controls select:focus,
+#filter-sort-controls input:focus {
+  outline: none;
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+}
+
+body.light-theme #filter-sort-controls select:focus,
+body.light-theme #filter-sort-controls input:focus {
+  border-color: #0969da;
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+}
+
+#apply-filters,
+#reset-filters {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+#apply-filters {
+  background: #238636;
+  color: white;
+}
+
+#apply-filters:hover {
+  background: #2ea043;
+  box-shadow: 0 2px 8px rgba(35, 134, 54, 0.3);
+}
+
+#reset-filters {
+  background: #444c56;
+  color: white;
+}
+
+#reset-filters:hover {
+  background: #535b63;
+}
+
+body.light-theme #apply-filters {
+  background: #1f883d;
+}
+
+body.light-theme #apply-filters:hover {
+  background: #238636;
+}
+
+body.light-theme #reset-filters {
+  background: #6e7681;
+}
+
+body.light-theme #reset-filters:hover {
+  background: #57606a;
+}

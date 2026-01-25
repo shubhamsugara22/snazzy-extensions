@@ -59,6 +59,75 @@
 
       <div id="metrics-container">
         <h3>Resource Metrics</h3>
+        
+        <!-- Filtering & Sorting Controls -->
+        <div id="filter-sort-controls" style="display: none; margin-bottom: 16px; padding: 12px; background: #1a1d23; border-radius: 8px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px;">
+            <!-- Resource Type Filter -->
+            <div>
+              <label style="display: block; margin-bottom: 4px; font-size: 12px; color: #8b949e;">Type</label>
+              <select id="filter-type" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9;">
+                <option value="">All Types</option>
+                <option value="script">Script</option>
+                <option value="stylesheet">Stylesheet</option>
+                <option value="image">Image</option>
+                <option value="fetch">Fetch</option>
+                <option value="xhr">XHR</option>
+                <option value="document">Document</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            <!-- Size Range Filter -->
+            <div>
+              <label style="display: block; margin-bottom: 4px; font-size: 12px; color: #8b949e;">Min Size (KB)</label>
+              <input id="filter-size-min" type="number" min="0" placeholder="0" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9;" />
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 4px; font-size: 12px; color: #8b949e;">Max Size (KB)</label>
+              <input id="filter-size-max" type="number" min="0" placeholder="999999" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9;" />
+            </div>
+            
+            <!-- Duration Range Filter -->
+            <div>
+              <label style="display: block; margin-bottom: 4px; font-size: 12px; color: #8b949e;">Min Duration (ms)</label>
+              <input id="filter-duration-min" type="number" min="0" placeholder="0" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9;" />
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 4px; font-size: 12px; color: #8b949e;">Max Duration (ms)</label>
+              <input id="filter-duration-max" type="number" min="0" placeholder="999999" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9;" />
+            </div>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+            <!-- Sort Controls -->
+            <div>
+              <label style="display: block; margin-bottom: 4px; font-size: 12px; color: #8b949e;">Sort By</label>
+              <select id="sort-by" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9;">
+                <option value="name">Name</option>
+                <option value="size">Size</option>
+                <option value="duration">Duration</option>
+                <option value="type">Type</option>
+              </select>
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 4px; font-size: 12px; color: #8b949e;">Order</label>
+              <select id="sort-order" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9;">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </div>
+            
+            <div style="display: flex; align-items: flex-end; gap: 8px;">
+              <button id="apply-filters" style="flex: 1; padding: 6px 12px; background: #238636; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 13px;">Apply Filters</button>
+              <button id="reset-filters" style="flex: 1; padding: 6px 12px; background: #444; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 13px;">Reset</button>
+            </div>
+          </div>
+        </div>
+        
         <div id="metricsResult">No metrics collected yet.</div>
       </div>
       
