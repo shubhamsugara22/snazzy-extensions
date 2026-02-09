@@ -45,6 +45,37 @@
         </div>
       </div>
 
+      <!-- AI Insights Panel (New!) -->
+      <div id="ai-insights-panel" class="ai-panel" style="display: none;">
+        <div class="ai-header">
+          <h3>🤖 AI-Powered Performance Analysis</h3>
+          <span class="ai-badge">BETA</span>
+        </div>
+        <div id="ai-summary" class="ai-summary"></div>
+        <div class="ai-sections">
+          <div class="ai-section">
+            <h4>🎯 Top Priority Recommendations</h4>
+            <div id="ai-top-priority" class="ai-recommendations"></div>
+          </div>
+          <div class="ai-section">
+            <h4>⚡ Quick Wins (Auto-fixable)</h4>
+            <div id="ai-quick-wins" class="ai-recommendations"></div>
+          </div>
+          <div class="ai-section">
+            <h4>📊 Predicted Impact</h4>
+            <div id="ai-impact" class="ai-impact-grid"></div>
+          </div>
+          <div class="ai-section">
+            <h4>💡 Smart Suggestions</h4>
+            <div id="ai-smart-suggestions" class="ai-suggestions"></div>
+          </div>
+        </div>
+        <div class="ai-actions">
+          <button id="export-ai-report" class="ai-btn">📄 Export AI Report</button>
+          <button id="apply-ai-fixes" class="ai-btn primary">🚀 Apply Auto-Fixes</button>
+        </div>
+      </div>
+
       <!-- Core Web Vitals & Bandwidth Panels (Side by Side) -->
       <div class="metrics-container">
         <div class="web-vitals-panel">

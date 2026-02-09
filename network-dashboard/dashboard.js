@@ -8,6 +8,7 @@ import { recommendationsEngine } from './modules/recommendations.js';
 import { imageOptimizer } from './modules/image-optimizer.js';
 import { historicalTracker } from './modules/historical-tracker.js';
 import { apiMonitor } from './modules/api-monitor.js';
+import { aiAnalyzer } from './modules/ai-analyzer.js';
 
 // Cache DOM elements
 const DOM = {
@@ -358,6 +359,12 @@ async function collectNetworkMetrics() {
     // Quick wins from current run
     const quickWins = buildQuickWins(performanceMetrics, resources, thirdPartyAnalysis, imageAnalysis, apiAnalysis);
     renderQuickWins(quickWins);
+
+    // === NEW: AI-Powered Analysis ===
+    const aiAnalysis = aiAnalyzer.analyzePerformance(performanceMetrics, resources, vitals);
+    const aiReport = aiAnalyzer.generateAIReport(aiAnalysis);
+    renderAIInsights(aiReport, aiAnalysis);
+    // ================================
 
     // Save to history
     const historyData = {
@@ -1350,4 +1357,163 @@ async function runDiagnostics() {
   summaryEl.innerHTML = summary + (suggestions.length ? `<div style="margin-top:8px"><strong>Quick Tips:</strong><ul>${suggestions.map(s=>`<li>${s}</li>`).join('')}</ul></div>` : '');
 
   resultEl.innerHTML = `<pre style="white-space:pre-wrap">Full diagnostic details:\nFetch duration: ${timeMs} ms\nStatus: ${status}\nPublic IP: ${publicIp}\nServer IP: ${serverIp}\nConnection: ${conn ? JSON.stringify({effectiveType:conn.effectiveType,downlink:conn.downlink,rtt:conn.rtt,saveData:conn.saveData}) : 'n/a'}</pre>`;
+}
+/**
+ * Render AI-Powered Insights
+ */
+function renderAIInsights(report, analysis) {
+  const panel = document.getElementById('ai-insights-panel');
+  if (!panel) return;
+
+  // Show panel
+  panel.style.display = 'block';
+
+  // Render summary
+  const summaryEl = document.getElementById('ai-summary');
+  summaryEl.textContent = report.summary;
+
+  // Render top priority recommendations
+  const topPriorityEl = document.getElementById('ai-top-priority');
+  topPriorityEl.innerHTML = '';
+  
+  if (report.topPriority && report.topPriority.length > 0) {
+    report.topPriority.forEach(rec => {
+      const card = document.createElement('div');
+      card.className = 'ai-recommendation-card';
+      card.innerHTML = `
+        <div class="priority-${rec.priority}">${rec.priority} priority</div>
+        <h5>${escapeHtml(rec.title)}</h5>
+        <div class="description">${escapeHtml(rec.description)}</div>
+        <div class="impact">💡 Impact: ${escapeHtml(rec.impact)}</div>
+        ${rec.suggestions && rec.suggestions.length > 0 ? `
+          <ul class="suggestions">
+            ${rec.suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+          </ul>
+        ` : ''}
+      `;
+      topPriorityEl.appendChild(card);
+    });
+  } else {
+    topPriorityEl.innerHTML = '<p style="color: #51cf66;">🎉 No critical issues found!</p>';
+  }
+
+  // Render quick wins
+  const quickWinsEl = document.getElementById('ai-quick-wins');
+  quickWinsEl.innerHTML = '';
+  
+  if (report.quickWins && report.quickWins.length > 0) {
+    report.quickWins.forEach(rec => {
+      const card = document.createElement('div');
+      card.className = 'ai-recommendation-card';
+      card.innerHTML = `
+        <h5>⚡ ${escapeHtml(rec.title)}</h5>
+        <div class="description">${escapeHtml(rec.description)}</div>
+        <div class="impact">💡 Impact: ${escapeHtml(rec.impact)}</div>
+        ${rec.suggestions && rec.suggestions.length > 0 ? `
+          <ul class="suggestions">
+            ${rec.suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+          </ul>
+        ` : ''}
+      `;
+      quickWinsEl.appendChild(card);
+    });
+  } else {
+    quickWinsEl.innerHTML = '<p style="color: #9fb6d6;">No auto-fixable issues detected.</p>';
+  }
+
+  // Render predicted impact
+  const impactEl = document.getElementById('ai-impact');
+  impactEl.innerHTML = `
+    <div class="ai-impact-card">
+      <div class="value">${report.potentialGains.timeGained}</div>
+      <div class="label">Time Saved</div>
+    </div>
+    <div class="ai-impact-card">
+      <div class="value">${report.potentialGains.bandwidthSaved}</div>
+      <div class="label">Bandwidth Saved</div>
+    </div>
+    <div class="ai-impact-card">
+      <div class="value">${report.potentialGains.scoreImprovement}</div>
+      <div class="label">Score Improvement</div>
+    </div>
+  `;
+
+  // Render smart suggestions
+  const suggestionsEl = document.getElementById('ai-smart-suggestions');
+  suggestionsEl.innerHTML = '';
+  
+  if (report.smartSuggestions && report.smartSuggestions.length > 0) {
+    report.smartSuggestions.forEach(sug => {
+      const card = document.createElement('div');
+      card.className = 'ai-suggestion-card';
+      card.innerHTML = `
+        <h5>${escapeHtml(sug.title)}</h5>
+        <div class="reason">📌 ${escapeHtml(sug.reason)}</div>
+        <div class="benefit">✨ Benefit: ${escapeHtml(sug.benefit)}</div>
+        ${sug.implementation && sug.implementation.length > 0 ? `
+          <ul>
+            ${sug.implementation.map(impl => `<li>${escapeHtml(impl)}</li>`).join('')}
+          </ul>
+        ` : ''}
+      `;
+      suggestionsEl.appendChild(card);
+    });
+  }
+
+  // Add event listeners for AI action buttons
+  const exportBtn = document.getElementById('export-ai-report');
+  if (exportBtn) {
+    exportBtn.onclick = () => exportAIReport(report, analysis);
+  }
+
+  const applyFixesBtn = document.getElementById('apply-ai-fixes');
+  if (applyFixesBtn) {
+    applyFixesBtn.onclick = () => applyAutomatedFixes(analysis.automatedFixes);
+  }
+}
+
+/**
+ * Export AI Report
+ */
+function exportAIReport(report, analysis) {
+  const reportData = {
+    timestamp: new Date().toISOString(),
+    summary: report.summary,
+    score: analysis.score,
+    category: analysis.category,
+    topPriority: report.topPriority,
+    quickWins: report.quickWins,
+    potentialGains: report.potentialGains,
+    smartSuggestions: report.smartSuggestions,
+    allRecommendations: analysis.aiRecommendations,
+    predictedImpact: analysis.predictedImpact,
+    automatedFixes: analysis.automatedFixes
+  };
+
+  const json = JSON.stringify(reportData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ai-performance-report-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  alert('✅ AI Report exported successfully!');
+}
+
+/**
+ * Apply automated fixes
+ */
+function applyAutomatedFixes(automatedFixes) {
+  if (!automatedFixes || automatedFixes.length === 0) {
+    alert('ℹ️ No automated fixes available at this time.');
+    return;
+  }
+
+  const fixesList = automatedFixes.map(fix => 
+    `• ${fix.title}: ${fix.description}`
+  ).join('\n');
+
+  alert(`🤖 AI Automated Fixes:\n\n${fixesList}\n\nThese optimizations require code changes in your application. Copy the commands/suggestions from the recommendations above and apply them to your codebase.`);
 }
