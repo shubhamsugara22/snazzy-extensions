@@ -52,10 +52,16 @@ body.light-theme #third-party-container,
 body.light-theme #image-optimization-container,
 body.light-theme #api-monitor-container,
 body.light-theme #historical-tracking-container,
-body.light-theme #export-container {
+body.light-theme #export-container,
+body.light-theme .ai-panel {
   background: #ffffff;
   border: 1px solid #e1e4e8;
   color: #1a1d23;
+}
+
+body.light-theme .ai-panel {
+  background: linear-gradient(135deg, #f0e6ff 0%, #e6f2ff 50%, #f0e6ff 100%);
+  border: 1px solid #d8bfd8;
 }
 
 body.light-theme .score-card {
@@ -1944,4 +1950,27 @@ body.light-theme #reset-filters {
 
 body.light-theme #reset-filters:hover {
   background: #57606a;
+}
+
+/* Empty containers hiding */
+#metricsResult:empty,
+#bandwidth-stats:empty,
+#connection-quality:empty,
+#waterfall-chart:empty,
+#third-party-analysis:empty,
+#image-optimization-analysis:empty,
+#api-monitor-analysis:empty,
+#historical-stats:empty,
+#quick-wins-content:empty,
+#recommendations-content:empty {
+  display: none !important;
+}
+
+/* Ensure AI panel displays properly */
+#ai-insights-panel[style*="display: none"] {
+  display: none !important;
+}
+
+#ai-insights-panel {
+  display: block !important;
 }
