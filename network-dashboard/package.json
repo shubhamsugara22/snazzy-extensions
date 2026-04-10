@@ -8,8 +8,5 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "web-vitals": "^5.1.0"
-  }
+  "license": "ISC"
 }

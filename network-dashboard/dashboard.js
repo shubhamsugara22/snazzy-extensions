@@ -54,6 +54,12 @@ function debounce(func, wait) {
   };
 }
 
+function escapeHtml(value) {
+  const div = document.createElement('div');
+  div.textContent = String(value ?? '');
+  return div.innerHTML;
+}
+
 // Tab switching - will be initialized on DOMContentLoaded
 function initTabSwitching() {
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -204,7 +210,12 @@ async function collectNetworkMetrics() {
           rtt: navigator.connection.rtt,
           saveData: navigator.connection.saveData
         } : null;
-        return {resources, navigation, connection, collectedAt: Date.now()};
+        const paintEntries = performance.getEntriesByType('paint') || [];
+        const paints = {
+          firstPaint: (paintEntries.find(p => p.name === 'first-paint') || {}).startTime || null,
+          fcp: (paintEntries.find(p => p.name === 'first-contentful-paint') || {}).startTime || null
+        };
+        return {resources, navigation, connection, paints, collectedAt: Date.now()};
       }
     }).catch(err => {
       if (err.message.includes('Cannot access')) {
@@ -230,7 +241,6 @@ async function collectNetworkMetrics() {
 
     // Navigation time breakdown
     const keyMetrics = [];
-    const ms = (v) => (typeof v === 'number' ? `${v.toFixed(2)} ms` : 'n/a');
     const safe = (a,b)=> (typeof a==='number'?a:b);
 
     const dnsTime = safe(nav.domainLookupEnd - nav.domainLookupStart, null);
@@ -242,10 +252,9 @@ async function collectNetworkMetrics() {
     const loadEvent = safe(nav.loadEventEnd, null);
     const totalLoad = safe(nav.duration, null);
 
-    // Paint metrics
-    const paints = performance.getEntriesByType ? performance.getEntriesByType('paint') : [];
-    const firstPaint = (paints.find(p=>p.name==='first-paint') || {}).startTime || null;
-    const fcp = (paints.find(p=>p.name==='first-contentful-paint') || {}).startTime || null;
+    // Paint metrics from analyzed tab payload
+    const firstPaint = payload.paints?.firstPaint ?? null;
+    const fcp = payload.paints?.fcp ?? null;
 
     // Collect Web Vitals using the module
     const vitals = await webVitalsCollector.collectMetrics(tabId);
@@ -954,12 +963,6 @@ function renderQuickWins(wins) {
   }
   panel.style.display = 'block';
   DOM.quickWinsList.innerHTML = wins.map(win => {
-    // Escape HTML characters
-    const escapeHtml = (str) => {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    };
     return `
     <div class="quick-win">
       <h4>${escapeHtml(win.title)}</h4>
@@ -1458,6 +1461,24 @@ function renderAIInsights(report, analysis) {
       `;
       suggestionsEl.appendChild(card);
     });
+  }
+
+  // Render incident radar (AI-assisted troubleshooting)
+  const incidentEl = document.getElementById('ai-incident-radar');
+  if (incidentEl) {
+    const incidents = report.incidents || [];
+    if (!incidents.length) {
+      incidentEl.innerHTML = '<p style="color: #9fb6d6;">No active network incident signals detected.</p>';
+    } else {
+      incidentEl.innerHTML = incidents.map((incident) => `
+        <div class="ai-recommendation-card incident-${escapeHtml(incident.severity)}">
+          <div class="priority-${escapeHtml(incident.severity)}">${escapeHtml(incident.severity)} signal</div>
+          <h5>${escapeHtml(incident.title)}</h5>
+          <div class="description">${escapeHtml(incident.evidence)}</div>
+          <div class="impact">Action: ${escapeHtml(incident.action)}</div>
+        </div>
+      `).join('');
+    }
   }
 
   // Add event listeners for AI action buttons

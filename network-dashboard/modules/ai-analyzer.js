@@ -10,6 +10,10 @@ class AIAnalyzer {
     };
   }
 
+  asNumber(value, fallback = 0) {
+    return typeof value === 'number' && !Number.isNaN(value) ? value : fallback;
+  }
+
   /**
    * AI-powered analysis of performance data
    * Uses pattern recognition and heuristics to provide intelligent insights
@@ -39,6 +43,7 @@ class AIAnalyzer {
     
     // Intelligent Performance Predictions
     insights.intelligentSuggestions = this.generateIntelligentSuggestions(metrics, resources, vitals);
+    insights.incidents = this.buildIncidentRadar(metrics, resources, vitals);
 
     return insights;
   }
@@ -55,29 +60,45 @@ class AIAnalyzer {
     let score = 100;
 
     // LCP scoring
-    if (vitals.lcp > 4000) score -= weights.lcp * 100;
-    else if (vitals.lcp > 2500) score -= weights.lcp * 50;
-    else score -= weights.lcp * Math.max(0, (vitals.lcp / 2500) * 30);
+    const lcp = this.asNumber(vitals?.lcp, null);
+    const inp = this.asNumber(vitals?.inp, null);
+    const cls = this.asNumber(vitals?.cls, null);
+    const ttfb = this.asNumber(metrics?.ttfb, null);
+    const fcp = this.asNumber(metrics?.fcp, null);
+
+    if (lcp !== null) {
+      if (lcp > 4000) score -= weights.lcp * 100;
+      else if (lcp > 2500) score -= weights.lcp * 50;
+      else score -= weights.lcp * Math.max(0, (lcp / 2500) * 30);
+    }
 
     // INP scoring
-    if (vitals.inp > 500) score -= weights.inp * 100;
-    else if (vitals.inp > 200) score -= weights.inp * 60;
-    else score -= weights.inp * Math.max(0, (vitals.inp / 200) * 30);
+    if (inp !== null) {
+      if (inp > 500) score -= weights.inp * 100;
+      else if (inp > 200) score -= weights.inp * 60;
+      else score -= weights.inp * Math.max(0, (inp / 200) * 30);
+    }
 
     // CLS scoring
-    if (vitals.cls > 0.25) score -= weights.cls * 100;
-    else if (vitals.cls > 0.1) score -= weights.cls * 60;
-    else score -= weights.cls * Math.max(0, (vitals.cls / 0.1) * 30);
+    if (cls !== null) {
+      if (cls > 0.25) score -= weights.cls * 100;
+      else if (cls > 0.1) score -= weights.cls * 60;
+      else score -= weights.cls * Math.max(0, (cls / 0.1) * 30);
+    }
 
     // TTFB scoring
-    if (metrics.ttfb > 800) score -= weights.ttfb * 100;
-    else if (metrics.ttfb > 600) score -= weights.ttfb * 60;
-    else score -= weights.ttfb * Math.max(0, (metrics.ttfb / 600) * 30);
+    if (ttfb !== null) {
+      if (ttfb > 800) score -= weights.ttfb * 100;
+      else if (ttfb > 600) score -= weights.ttfb * 60;
+      else score -= weights.ttfb * Math.max(0, (ttfb / 600) * 30);
+    }
 
     // FCP scoring
-    if (metrics.fcp > 3000) score -= weights.fcp * 100;
-    else if (metrics.fcp > 1800) score -= weights.fcp * 60;
-    else score -= weights.fcp * Math.max(0, (metrics.fcp / 1800) * 30);
+    if (fcp !== null) {
+      if (fcp > 3000) score -= weights.fcp * 100;
+      else if (fcp > 1800) score -= weights.fcp * 60;
+      else score -= weights.fcp * Math.max(0, (fcp / 1800) * 30);
+    }
 
     return Math.max(0, Math.min(100, Math.round(score)));
   }
@@ -157,12 +178,12 @@ class AIAnalyzer {
     }
 
     // AI CLS prediction
-    if (vitals.cls > 0.1) {
+    if (this.asNumber(vitals?.cls, 0) > 0.1) {
       recommendations.push({
         type: 'ai-cls-fix',
         priority: 'medium',
         title: '🤖 AI Detected: Layout Shift Issues',
-        description: `CLS score of ${vitals.cls.toFixed(3)} indicates layout instability`,
+        description: `CLS score of ${this.asNumber(vitals?.cls, 0).toFixed(3)} indicates layout instability`,
         impact: 'Improves user experience and SEO ranking',
         suggestions: [
           'Add explicit width/height to images and videos',
@@ -274,7 +295,7 @@ class AIAnalyzer {
     }
 
     // Progressive enhancement
-    if (vitals.lcp > 3000) {
+    if (this.asNumber(vitals?.lcp, 0) > 3000) {
       suggestions.push({
         type: 'progressive-enhancement',
         title: '💡 Smart Suggestion: Progressive Loading',
@@ -305,6 +326,54 @@ class AIAnalyzer {
     return suggestions;
   }
 
+  buildIncidentRadar(metrics, resources, vitals) {
+    const incidents = [];
+    const ttfb = this.asNumber(metrics?.ttfb, null);
+    const lcp = this.asNumber(vitals?.lcp, null);
+    const inp = this.asNumber(vitals?.inp, null);
+
+    const verySlowApis = resources.filter(r => this.patterns.slowAPI.test(r.name) && r.duration > 1000).length;
+    const veryLargeAssets = resources.filter(r => (r.transferSize || 0) > 500000).length;
+
+    if (ttfb !== null && ttfb > 1000) {
+      incidents.push({
+        severity: 'high',
+        title: 'Backend latency spike',
+        evidence: `TTFB ${ttfb.toFixed(0)}ms suggests server/network delay before first byte.`,
+        action: 'Check origin CPU, DB latency, and CDN cache hit ratio.'
+      });
+    }
+
+    if (lcp !== null && lcp > 3500 && veryLargeAssets > 0) {
+      incidents.push({
+        severity: 'medium',
+        title: 'Payload pressure affecting render',
+        evidence: `${veryLargeAssets} large assets and LCP ${lcp.toFixed(0)}ms indicate heavy critical path.`,
+        action: 'Preload hero asset, compress media, and defer non-critical bundles.'
+      });
+    }
+
+    if (inp !== null && inp > 300) {
+      incidents.push({
+        severity: 'medium',
+        title: 'Main-thread interaction bottleneck',
+        evidence: `INP ${inp.toFixed(0)}ms indicates delayed interaction response.`,
+        action: 'Split long tasks, reduce synchronous JS, and move heavy work to Web Workers.'
+      });
+    }
+
+    if (verySlowApis >= 2) {
+      incidents.push({
+        severity: 'high',
+        title: 'Upstream API bottleneck',
+        evidence: `${verySlowApis} API calls exceed 1000ms and likely block UX-critical flows.`,
+        action: 'Batch calls, cache responses, and add timeout/retry strategies.'
+      });
+    }
+
+    return incidents.slice(0, 4);
+  }
+
   /**
    * Generate a detailed AI report
    */
@@ -327,7 +396,8 @@ class AIAnalyzer {
         bandwidthSaved: `${(predictedImpact.total.bandwidth / 1024 / 1024).toFixed(1)}MB saved`,
         scoreImprovement: `+${predictedImpact.total.score} points`
       },
-      smartSuggestions: intelligentSuggestions
+      smartSuggestions: intelligentSuggestions,
+      incidents: analysis.incidents || []
     };
 
     return report;

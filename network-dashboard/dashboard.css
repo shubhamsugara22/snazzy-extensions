@@ -290,7 +290,12 @@ h1 {
   background-clip: text;
   animation: gradientText 3s ease infinite;
   letter-spacing: -0.5px;
-}\n\n@keyframes gradientText {\n  0%, 100% { background-position: 0% center; }\n  50% { background-position: 100% center; }\n}
+}
+
+@keyframes gradientText {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
 
 .theme-toggle {
   background: rgba(97, 218, 251, 0.1);
@@ -834,6 +839,26 @@ main {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+.ai-recommendation-card .priority-low {
+  color: #51cf66;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ai-recommendation-card.incident-high {
+  border-left-color: #ff6b6b;
+}
+
+.ai-recommendation-card.incident-medium {
+  border-left-color: #ffd93d;
+}
+
+.ai-recommendation-card.incident-low {
+  border-left-color: #51cf66;
 }
 
 .ai-recommendation-card h5 {
@@ -1961,16 +1986,7 @@ body.light-theme #reset-filters:hover {
 #image-optimization-analysis:empty,
 #api-monitor-analysis:empty,
 #historical-stats:empty,
-#quick-wins-content:empty,
-#recommendations-content:empty {
+#quick-wins-list:empty,
+#recommendations-list:empty {
   display: none !important;
-}
-
-/* Ensure AI panel displays properly */
-#ai-insights-panel[style*="display: none"] {
-  display: none !important;
-}
-
-#ai-insights-panel {
-  display: block !important;
 }

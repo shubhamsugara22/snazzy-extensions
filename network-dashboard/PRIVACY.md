@@ -25,8 +25,9 @@ How data is used
   - Any Diagnostics fetch you explicitly run — your browser performs the fetch to the specified endpoint.
 
 Storage and retention
-- The extension does not persistently store collected metrics on disk or in cloud storage.
-- Metrics are held in memory in the dashboard UI and are cleared when the dashboard page is closed or refreshed.
+- The extension stores historical performance summaries locally in your browser (localStorage) for trend tracking and export features.
+- This local history remains on your device until you clear it from the dashboard using "Clear History."
+- The extension does not upload this history to any cloud service.
 
 Sharing and third parties
 - The extension does not upload or share page content or collected timing data to third parties.
