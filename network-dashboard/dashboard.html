@@ -52,6 +52,42 @@
           <span class="ai-badge">LIVE AI</span>
         </div>
         <div id="ai-summary" class="ai-summary"></div>
+        <div id="ai-source" class="ai-source"></div>
+        <details class="ai-settings-panel">
+          <summary>Bring your own AI model</summary>
+          <div class="ai-settings-grid">
+            <label class="ai-setting-row ai-setting-toggle">
+              <span>Use remote AI provider</span>
+              <input id="ai-remote-enabled" type="checkbox" />
+            </label>
+            <label class="ai-setting-row">
+              <span>Provider</span>
+              <select id="ai-provider">
+                <option value="openai">OpenAI</option>
+                <option value="gemini">Gemini</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="ollama">Ollama</option>
+              </select>
+            </label>
+            <label class="ai-setting-row">
+              <span>Model</span>
+              <input id="ai-model" type="text" placeholder="gpt-4o-mini or gemini-2.5-flash" />
+            </label>
+            <label class="ai-setting-row">
+              <span>API key</span>
+              <input id="ai-api-key" type="password" placeholder="Optional for Ollama" />
+            </label>
+            <label class="ai-setting-row" id="ai-endpoint-row" style="display: none;">
+              <span>Endpoint</span>
+              <input id="ai-endpoint" type="text" placeholder="http://localhost:11434" />
+            </label>
+          </div>
+          <p class="ai-settings-note">Remote AI is optional. If enabled, a summarized performance payload is sent to your selected provider. Local AI remains the default fallback.</p>
+          <div class="ai-settings-actions">
+            <button id="save-ai-settings" class="ai-btn">Save AI Settings</button>
+            <button id="test-ai-settings" class="ai-btn">Test Connection</button>
+          </div>
+        </details>
         <div class="ai-sections">
           <div class="ai-section">
             <h4>🎯 Top Priority Recommendations</h4>

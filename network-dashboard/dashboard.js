@@ -9,6 +9,7 @@ import { imageOptimizer } from './modules/image-optimizer.js';
 import { historicalTracker } from './modules/historical-tracker.js';
 import { apiMonitor } from './modules/api-monitor.js';
 import { aiAnalyzer } from './modules/ai-analyzer.js';
+import { aiProviderClient } from './modules/ai-provider.js';
 
 // Cache DOM elements
 const DOM = {
@@ -36,6 +37,7 @@ const DOM = {
 
 // In-memory snapshot of last run for exports
 let lastSnapshotData = null;
+let currentAiSettings = null;
 
 // Cache current resources for filtering/sorting
 let currentResources = [];
@@ -58,6 +60,80 @@ function escapeHtml(value) {
   const div = document.createElement('div');
   div.textContent = String(value ?? '');
   return div.innerHTML;
+}
+
+function mergeAiReports(localReport, localAnalysis, remoteResult) {
+  if (!remoteResult || !remoteResult.report) {
+    return {
+      report: {
+        ...localReport,
+        sourceLabel: 'Source: Local heuristic AI'
+      },
+      analysis: localAnalysis
+    };
+  }
+
+  return {
+    report: {
+      ...localReport,
+      ...remoteResult.report,
+      potentialGains: localReport.potentialGains,
+      sourceLabel: remoteResult.sourceLabel || 'Source: Remote AI'
+    },
+    analysis: {
+      ...localAnalysis,
+      remote: true,
+      provider: remoteResult.provider,
+      model: remoteResult.model
+    }
+  };
+}
+
+function loadAiSettings() {
+  currentAiSettings = aiProviderClient.loadSettings();
+  const enabled = document.getElementById('ai-remote-enabled');
+  const provider = document.getElementById('ai-provider');
+  const model = document.getElementById('ai-model');
+  const apiKey = document.getElementById('ai-api-key');
+  const endpoint = document.getElementById('ai-endpoint');
+  if (enabled) enabled.checked = !!currentAiSettings.enabled;
+  if (provider) provider.value = currentAiSettings.provider;
+  if (model) model.value = currentAiSettings.model;
+  if (apiKey) apiKey.value = currentAiSettings.apiKey;
+  if (endpoint) endpoint.value = currentAiSettings.endpoint;
+  updateAiSettingsVisibility();
+}
+
+function readAiSettingsForm() {
+  return {
+    enabled: !!document.getElementById('ai-remote-enabled')?.checked,
+    provider: document.getElementById('ai-provider')?.value || 'openai',
+    model: (document.getElementById('ai-model')?.value || '').trim(),
+    apiKey: (document.getElementById('ai-api-key')?.value || '').trim(),
+    endpoint: (document.getElementById('ai-endpoint')?.value || '').trim()
+  };
+}
+
+function updateAiSettingsVisibility() {
+  const provider = document.getElementById('ai-provider')?.value;
+  const endpointRow = document.getElementById('ai-endpoint-row');
+  if (endpointRow) {
+    endpointRow.style.display = provider === 'ollama' ? 'flex' : 'none';
+  }
+}
+
+function saveAiSettings() {
+  currentAiSettings = aiProviderClient.saveSettings(readAiSettingsForm());
+  updateAiSettingsVisibility();
+  alert('AI settings saved locally. Remote AI will be used only when enabled and configured.');
+}
+
+async function testAiSettings() {
+  const settings = readAiSettingsForm();
+  aiProviderClient.saveSettings(settings);
+  updateAiSettingsVisibility();
+  const result = await aiProviderClient.testConnection(settings);
+  alert(result.ok ? `AI connection OK: ${result.message}` : `AI connection failed: ${result.message}`);
 }
 
 // Tab switching - will be initialized on DOMContentLoaded
@@ -372,7 +448,21 @@ async function collectNetworkMetrics() {
     // === NEW: AI-Powered Analysis ===
     const aiAnalysis = aiAnalyzer.analyzePerformance(performanceMetrics, resources, vitals);
     const aiReport = aiAnalyzer.generateAIReport(aiAnalysis);
-    renderAIInsights(aiReport, aiAnalysis);
+    const remoteResult = await aiProviderClient.analyze({
+      settings: currentAiSettings,
+      domain: currentDomain,
+      metrics: performanceMetrics,
+      vitals,
+      resources,
+      score: scoreData.overall,
+      totals: {
+        totalResources,
+        totalTransfer,
+        thirdPartyCount: thirdPartyAnalysis.thirdPartyCount
+      }
+    });
+    const mergedAi = mergeAiReports(aiReport, aiAnalysis, remoteResult);
+    renderAIInsights(mergedAi.report, mergedAi.analysis);
     // ================================
 
     // Save to history
@@ -1201,6 +1291,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize tab switching
   initTabSwitching();
+  loadAiSettings();
   
   // Wire up collect metrics button
   const btn = document.getElementById('collectMetrics');
@@ -1299,6 +1390,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const aiProviderSelect = document.getElementById('ai-provider');
+  if (aiProviderSelect) {
+    aiProviderSelect.addEventListener('change', updateAiSettingsVisibility);
+  }
+
+  const saveAiSettingsBtn = document.getElementById('save-ai-settings');
+  if (saveAiSettingsBtn) {
+    saveAiSettingsBtn.addEventListener('click', saveAiSettings);
+  }
+
+  const testAiSettingsBtn = document.getElementById('test-ai-settings');
+  if (testAiSettingsBtn) {
+    testAiSettingsBtn.addEventListener('click', testAiSettings);
+  }
+
   // Wire up theme toggle
   const themeToggleBtn = document.getElementById('theme-toggle');
   if (themeToggleBtn) {
@@ -1374,6 +1480,10 @@ function renderAIInsights(report, analysis) {
   // Render summary
   const summaryEl = document.getElementById('ai-summary');
   summaryEl.textContent = report.summary;
+  const sourceEl = document.getElementById('ai-source');
+  if (sourceEl) {
+    sourceEl.textContent = report.sourceLabel || 'Source: Local heuristic AI';
+  }
 
   // Render top priority recommendations
   const topPriorityEl = document.getElementById('ai-top-priority');

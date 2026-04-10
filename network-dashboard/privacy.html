@@ -35,6 +35,7 @@
     <li>Collected metrics are used to create a concise diagnostics summary in the browser UI so you can triage network and performance issues.</li>
     <li>The extension does not send collected performance metrics, resource URLs, or navigation data to third-party servers by default.</li>
     <li>The only network calls the extension makes are to: public IP lookup services (optional), public DNS-over-HTTPS providers (optional), and any Diagnostics fetch you explicitly run from the dashboard.</li>
+    <li>If you explicitly enable a user-supplied AI provider in the dashboard settings, the extension may send a summarized performance payload to that provider to generate advanced analysis. This is optional and disabled by default.</li>
   </ul>
 
   <h2>Storage and retention</h2>
@@ -48,6 +49,7 @@
   <ul>
     <li>The extension does not upload or share page content or collected timing data to third parties by default.</li>
     <li>Third-party services contacted (for example: <code>api.ipify.org</code>, <code>dns.google</code>) will receive standard HTTP requests; consult their privacy policies for details.</li>
+    <li>If you configure OpenAI, Gemini, Anthropic, or Ollama, your selected provider will receive the summarized diagnostics payload needed for the AI response.</li>
   </ul>
 
   <h2>Security</h2>

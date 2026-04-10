@@ -6,7 +6,12 @@
   "permissions": ["tabs", "scripting", "activeTab"],
   "host_permissions": [
     "https://api.ipify.org/*",
-    "https://dns.google/*"
+    "https://dns.google/*",
+    "https://api.openai.com/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://api.anthropic.com/*",
+    "http://localhost:11434/*",
+    "http://127.0.0.1:11434/*"
   ],
   "background": {
     "service_worker": "background.js"

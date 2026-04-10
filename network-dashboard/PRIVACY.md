@@ -23,6 +23,7 @@ How data is used
   - Public IP lookup (api.ipify.org) — exposes the requester's public IP to that provider.
   - DNS resolution via dns.google — resolves hostnames to IPs using a public DNS over HTTPS provider.
   - Any Diagnostics fetch you explicitly run — your browser performs the fetch to the specified endpoint.
+- If you explicitly enable a user-supplied AI provider in the dashboard settings, the extension may send a summarized performance payload to that provider for advanced analysis. This feature is optional and disabled by default.
 
 Storage and retention
 - The extension stores historical performance summaries locally in your browser (localStorage) for trend tracking and export features.
@@ -32,6 +33,7 @@ Storage and retention
 Sharing and third parties
 - The extension does not upload or share page content or collected timing data to third parties.
 - Third-party services contacted (api.ipify.org, dns.google) will receive standard HTTP requests; see their respective privacy policies for details.
+- If you configure OpenAI, Gemini, Anthropic, or Ollama, that selected provider will receive the summarized diagnostics payload needed to generate the AI response.
 
 Security
 - The extension injects only a small, temporary collector function into the active tab to read performance APIs. The injected code does not modify the page or persist scripts.
