@@ -2,7 +2,7 @@
 
 Modern Chrome extension for network troubleshooting, performance analysis, and AI-assisted diagnostics.
 
-Current version: 3.0.0
+Current version: 3.0.1
 
 ## What It Does
 
