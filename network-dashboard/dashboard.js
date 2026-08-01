@@ -10,6 +10,7 @@ import { historicalTracker } from './modules/historical-tracker.js';
 import { apiMonitor } from './modules/api-monitor.js';
 import { aiAnalyzer } from './modules/ai-analyzer.js';
 import { aiProviderClient } from './modules/ai-provider.js';
+import { botAnalyzer } from './modules/bot-analyzer.js';
 
 // Cache DOM elements
 const DOM = {
@@ -291,7 +292,12 @@ async function collectNetworkMetrics() {
           firstPaint: (paintEntries.find(p => p.name === 'first-paint') || {}).startTime || null,
           fcp: (paintEntries.find(p => p.name === 'first-contentful-paint') || {}).startTime || null
         };
-        return {resources, navigation, connection, paints, collectedAt: Date.now()};
+        const botSignals = {
+          webdriver: navigator.webdriver || false,
+          pluginsLength: navigator.plugins ? navigator.plugins.length : 0,
+          userAgent: navigator.userAgent || ''
+        };
+        return {resources, navigation, connection, paints, botSignals, collectedAt: Date.now()};
       }
     }).catch(err => {
       if (err.message.includes('Cannot access')) {
@@ -440,6 +446,11 @@ async function collectNetworkMetrics() {
     // Analyze API calls
     const apiAnalysis = apiMonitor.analyzeApiCalls(resources);
     renderApiMonitor(apiAnalysis);
+
+    // Bot and Agent Analysis
+    const botAnalysis = botAnalyzer.analyze(payload.botSignals, resources);
+    botAnalyzer.render(botAnalysis, 'bot-agent-analysis');
+    document.getElementById('bot-agent-analysis-container').style.display = 'block';
 
     // Quick wins from current run
     const quickWins = buildQuickWins(performanceMetrics, resources, thirdPartyAnalysis, imageAnalysis, apiAnalysis);

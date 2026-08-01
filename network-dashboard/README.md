@@ -44,6 +44,7 @@ It combines browser performance data with built-in local AI heuristics and optio
 - Third-party resource analysis
 - Image optimization analysis
 - API call analysis
+- Bot & Agent analysis (Session trust score and on-page agent detection)
 - Historical performance tracking
 - Snapshot export and report export
 
@@ -159,6 +160,7 @@ Modules:
 - `modules/recommendations.js`
 - `modules/image-optimizer.js`
 - `modules/api-monitor.js`
+- `modules/bot-analyzer.js`
 - `modules/historical-tracker.js`
 - `modules/ai-analyzer.js`
 - `modules/ai-provider.js`
@@ -201,6 +203,7 @@ If remote AI does not work:
 
 ## Latest Additions
 
+- Bot & Agent Analysis module (browser trust score and on-page agent detection)
 - AI Incident Radar
 - optional bring-your-own AI provider support
 - OpenAI, Gemini, Anthropic, and Ollama adapters
