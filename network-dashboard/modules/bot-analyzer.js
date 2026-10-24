@@ -87,16 +87,16 @@ export const botAnalyzer = {
     const scoreColor = analysis.browserTrust.category === 'human' ? '#0cce6b' : (analysis.browserTrust.category === 'suspicious' ? '#ffa400' : '#ff4e42');
     const scoreIcon = analysis.browserTrust.category === 'human' ? '👤' : (analysis.browserTrust.category === 'suspicious' ? '🕵️' : '🤖');
     
-    html += '<div class="browser-trust-panel" style="padding: 16px; background: #1a1d23; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; gap: 16px;">';
-    html += `<div style="font-size: 32px;">${scoreIcon}</div>`;
+    html += '<div class="browser-trust-panel">';
+    html += `<div class="trust-icon">${scoreIcon}</div>`;
     html += '<div>';
-    html += `<h4 style="margin: 0 0 4px 0; color: #f2f4f8;">Session Trust Score: <span style="color: ${scoreColor}">${analysis.browserTrust.score}%</span></h4>`;
+    html += `<h4>Session Trust Score: <span style="color: ${scoreColor}">${analysis.browserTrust.score}%</span></h4>`;
     
     if (analysis.browserTrust.flags.length === 0) {
-      html += '<div style="font-size: 13px; color: #8b949e;">Your browser appears to be a normal human user.</div>';
+      html += '<div class="trust-note">Your browser appears to be a normal human user.</div>';
     } else {
-      html += '<div style="font-size: 13px; color: #8b949e;">Flags detected:</div>';
-      html += '<ul style="margin: 4px 0 0 0; padding-left: 16px; font-size: 12px; color: #ffa400;">';
+      html += '<div class="trust-note">Flags detected:</div>';
+      html += '<ul class="trust-flags">';
       analysis.browserTrust.flags.forEach(flag => {
         html += `<li>${flag}</li>`;
       });
@@ -106,23 +106,23 @@ export const botAnalyzer = {
 
     // Agents on Page
     html += '<div class="agents-on-page-panel">';
-    html += '<h4 style="margin: 0 0 12px 0;">🕵️ Detected Agents on Page</h4>';
+    html += '<h4>🕵️ Detected Agents on Page</h4>';
     
     if (analysis.agentsOnPage.length === 0) {
-      html += '<div style="padding: 12px; background: #1a1d23; border-radius: 6px; color: #8b949e; font-size: 13px;">No known bot mitigation or analytics agents detected.</div>';
+      html += '<div class="agent-empty">No known bot mitigation or analytics agents detected.</div>';
     } else {
-      html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px;">';
+      html += '<div class="agent-grid">';
       analysis.agentsOnPage.forEach(agent => {
         let typeBadge = '';
-        if (agent.type === 'Bot Mitigation') typeBadge = '<span style="background: #238636; color: white; padding: 2px 6px; border-radius: 12px; font-size: 10px; margin-left: 8px;">Bot Mitigation</span>';
-        else if (agent.type === 'Analytics') typeBadge = '<span style="background: #1f6feb; color: white; padding: 2px 6px; border-radius: 12px; font-size: 10px; margin-left: 8px;">Analytics</span>';
-        else typeBadge = `<span style="background: #444; color: white; padding: 2px 6px; border-radius: 12px; font-size: 10px; margin-left: 8px;">${agent.type}</span>`;
+        if (agent.type === 'Bot Mitigation') typeBadge = '<span class="agent-badge mitigation">Bot Mitigation</span>';
+        else if (agent.type === 'Analytics') typeBadge = '<span class="agent-badge analytics">Analytics</span>';
+        else typeBadge = `<span class="agent-badge">${agent.type}</span>`;
         
-        html += `<div style="padding: 12px; background: #1a1d23; border: 1px solid #30363d; border-radius: 6px;">`;
-        html += `<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">`;
-        html += `<strong style="color: #c9d1d9;">${agent.name}</strong>${typeBadge}`;
+        html += `<div class="agent-card">`;
+        html += `<div class="agent-card-head">`;
+        html += `<strong>${agent.name}</strong>${typeBadge}`;
         html += `</div>`;
-        html += `<div style="font-size: 12px; color: #8b949e;">${agent.count} script(s) loaded</div>`;
+        html += `<div class="agent-count">${agent.count} script(s) loaded</div>`;
         html += `</div>`;
       });
       html += '</div>';

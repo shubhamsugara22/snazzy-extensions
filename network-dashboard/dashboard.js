@@ -1265,7 +1265,7 @@ function renderFilteredResourcesTable() {
   
   if (filteredResources.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="6" style="text-align:center; padding:16px; color:#8b949e;">No resources match the selected filters.</td>';
+    tr.innerHTML = '<td colspan="6" style="text-align:center; padding:16px; color:#64748b;">No resources match the selected filters.</td>';
     tbody.appendChild(tr);
     return;
   }
@@ -1518,7 +1518,7 @@ function renderAIInsights(report, analysis) {
       topPriorityEl.appendChild(card);
     });
   } else {
-    topPriorityEl.innerHTML = '<p style="color: #51cf66;">🎉 No critical issues found!</p>';
+    topPriorityEl.innerHTML = '<p style="color: #15803d;">🎉 No critical issues found!</p>';
   }
 
   // Render quick wins
@@ -1542,7 +1542,7 @@ function renderAIInsights(report, analysis) {
       quickWinsEl.appendChild(card);
     });
   } else {
-    quickWinsEl.innerHTML = '<p style="color: #9fb6d6;">No auto-fixable issues detected.</p>';
+    quickWinsEl.innerHTML = '<p style="color: #64748b;">No auto-fixable issues detected.</p>';
   }
 
   // Render predicted impact
@@ -1589,7 +1589,7 @@ function renderAIInsights(report, analysis) {
   if (incidentEl) {
     const incidents = report.incidents || [];
     if (!incidents.length) {
-      incidentEl.innerHTML = '<p style="color: #9fb6d6;">No active network incident signals detected.</p>';
+      incidentEl.innerHTML = '<p style="color: #64748b;">No active network incident signals detected.</p>';
     } else {
       incidentEl.innerHTML = incidents.map((incident) => `
         <div class="ai-recommendation-card incident-${escapeHtml(incident.severity)}">
