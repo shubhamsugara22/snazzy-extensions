@@ -1,10 +1,10 @@
-# 🚀 Snazzy Chrome Extensions
+﻿# ðŸš€ Snazzy Chrome Extensions
 
 A collection of powerful, modern Chrome extensions built with cutting-edge technologies.
 
-## 🌟 Featured: Network Diagnostics Dashboard
+## ðŸŒŸ Featured: Network Diagnostics Dashboard
 
-### 🤖 AI-Powered Performance Analysis Tool
+### ðŸ¤– AI-Powered Performance Analysis Tool
 
 > **Transform your web performance monitoring with AI intelligence!**
 
@@ -14,29 +14,29 @@ A collection of powerful, modern Chrome extensions built with cutting-edge techn
 
 ---
 
-## ✨ What Makes This Extension Special?
+## âœ¨ What Makes This Extension Special?
 
-### 🎯 AI-Powered Intelligence
+### ðŸŽ¯ AI-Powered Intelligence
 - **Smart Performance Recommendations**: Our AI engine analyzes your site and provides actionable insights
 - **Predictive Analytics**: See exactly how much faster your site could be
 - **Automated Fix Suggestions**: Get code snippets and commands to implement optimizations instantly
 - **Pattern Recognition**: AI detects performance bottlenecks that traditional tools miss
 
-### 🔥 Features That Increase Productivity
+### ðŸ”¥ Features That Increase Productivity
 
-#### 🤖 AI Analysis Engine
+#### ðŸ¤– AI Analysis Engine
 - **Intelligent Performance Scoring**: Advanced algorithm that considers 6+ metrics
 - **Priority-Based Recommendations**: AI ranks issues by impact
 - **Quick Wins Detection**: Finds auto-fixable optimizations
 - **Impact Prediction**: Know exactly what you'll gain before making changes
 
-#### 📊 Comprehensive Diagnostics
+#### ðŸ“Š Comprehensive Diagnostics
 - **Core Web Vitals Monitoring**
-  - ⚡ LCP (Largest Contentful Paint)
-  - 🎯 INP (Interaction to Next Paint)
-  - 📏 CLS (Cumulative Layout Shift)
-  - 🚀 FCP (First Contentful Paint)
-  - ⏱️ TTFB (Time to First Byte)
+  - âš¡ LCP (Largest Contentful Paint)
+  - ðŸŽ¯ INP (Interaction to Next Paint)
+  - ðŸ“ CLS (Cumulative Layout Shift)
+  - ðŸš€ FCP (First Contentful Paint)
+  - â±ï¸ TTFB (Time to First Byte)
 
 - **Real-time Performance Tracking**
   - Bandwidth usage analysis
@@ -45,14 +45,14 @@ A collection of powerful, modern Chrome extensions built with cutting-edge techn
   - API call monitoring
   - Image optimization suggestions
 
-#### 🎨 Modern, Beautiful UI
-- **Glassmorphism Design**: Stunning backdrop-blur effects
-- **Animated Gradients**: Dynamic, eye-catching visuals
-- **Smooth Transitions**: Polished micro-interactions
-- **Dark/Light Themes**: Easy on the eyes, day or night
-- **Responsive Layout**: Works perfectly on any screen
+#### ðŸŽ¨ Clean, Light UI
+- **Sidebar Navigation**: Clearly separated sections and cards
+- **Traffic Flow**: Interactive diagram of requests from the browser to the domains that serve them
+- **Connection Diagram**: DNS, TCP, TLS, request and response timing from browser to server
+- **Guided Tour**: A short walkthrough on first launch
+- **Responsive Layout**: Adapts to smaller windows
 
-#### 🚀 Advanced Tools
+#### ðŸš€ Advanced Tools
 - **Snapshot Export**: Share performance reports instantly
 - **Historical Tracking**: Track improvements over time
 - **Advanced Filtering**: Find exactly what you need
@@ -61,18 +61,18 @@ A collection of powerful, modern Chrome extensions built with cutting-edge techn
 
 ---
 
-## 📈 Why Developers Love It
+## ðŸ“ˆ Why Developers Love It
 
-### 💼 Professional Features
+### ðŸ’¼ Professional Features
 ```
-✅ AI-powered insights save hours of debugging
-✅ Predictive analytics show potential gains before changes
-✅ Automated recommendations with implementation code
-✅ Export reports for team collaboration
-✅ Track performance trends over time
+âœ… AI-powered insights save hours of debugging
+âœ… Predictive analytics show potential gains before changes
+âœ… Automated recommendations with implementation code
+âœ… Export reports for team collaboration
+âœ… Track performance trends over time
 ```
 
-### 🎓 Perfect For
+### ðŸŽ“ Perfect For
 - **Web Developers**: Debug performance issues fast
 - **DevOps Engineers**: Monitor production sites
 - **QA Teams**: Validate optimizations
@@ -81,12 +81,12 @@ A collection of powerful, modern Chrome extensions built with cutting-edge techn
 
 ---
 
-## 🚀 Installation
+## ðŸš€ Installation
 
 ### Manual Installation
 1. Clone this repository
 ```bash
-git clone https://github.com/yourusername/snazzy-extensions.git
+git clone https://github.com/shubhamsugara22/snazzy-extensions.git
 ```
 
 2. Open Chrome and navigate to `chrome://extensions/`
@@ -101,7 +101,7 @@ git clone https://github.com/yourusername/snazzy-extensions.git
 
 ---
 
-## 🎯 Quick Start Guide
+## ðŸŽ¯ Quick Start Guide
 
 ### Step 1: Open the Dashboard
 1. Navigate to any website
@@ -122,9 +122,9 @@ git clone https://github.com/yourusername/snazzy-extensions.git
 
 ---
 
-## 🤖 AI Features Explained
+## ðŸ¤– AI Features Explained
 
-### 🧠 Smart Analysis
+### ðŸ§  Smart Analysis
 Our AI engine uses advanced heuristics and pattern recognition to:
 - Detect slow API calls and suggest caching strategies
 - Identify render-blocking resources
@@ -132,13 +132,13 @@ Our AI engine uses advanced heuristics and pattern recognition to:
 - Predict layout shift issues
 - Generate intelligent optimization paths
 
-### 📊 Predictive Impact
+### ðŸ“Š Predictive Impact
 Before you make any changes, see:
 - **Time Gained**: How much faster your site will load
 - **Bandwidth Saved**: How much data you'll reduce
 - **Score Improvement**: Expected performance score increase
 
-### ⚡ Automated Fixes
+### âš¡ Automated Fixes
 Get ready-to-use code for:
 - Image compression commands
 - Code splitting strategies
@@ -148,27 +148,17 @@ Get ready-to-use code for:
 
 ---
 
-## 🛠️ Tech Stack
+## ðŸ› ï¸ Tech Stack
 
-- **Frontend**: HTML5, CSS3 (Modern Glassmorphism)
+- **Frontend**: HTML5, CSS3 (light theme, sidebar layout)
 - **JavaScript**: ES6+ Modules
+- **Diagrams**: React + React Flow, bundled with Vite
 - **AI Engine**: Custom pattern recognition & heuristics
 - **Chrome APIs**: Tabs, Scripting, Performance
-- **Design**: Animated gradients, backdrop filters, cubic-bezier easing
 
 ---
 
-## 🌟 What Users Say
-
-> "The AI recommendations saved me 3 hours of debugging. This is incredible!" - **Sarah M., Senior Developer**
-
-> "Finally, a performance tool that tells me exactly what to do AND how much I'll gain. Game changer!" - **Mike T., DevOps Engineer**
-
-> "The UI is gorgeous and the insights are actionable. Best extension I've used this year." - **Alex K., Tech Lead**
-
----
-
-## 📋 Roadmap
+## ðŸ“‹ Roadmap
 
 ### Coming Soon
 - [ ] Machine Learning model for even smarter predictions
@@ -182,7 +172,7 @@ Get ready-to-use code for:
 
 ---
 
-## 🤝 Contributing
+## ðŸ¤ Contributing
 
 We love contributions! Here's how you can help:
 
@@ -194,20 +184,20 @@ We love contributions! Here's how you can help:
 
 ---
 
-## 📄 License
+## ðŸ“„ License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 💬 Support
+## ðŸ’¬ Support
 
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/snazzy-extensions/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/snazzy-extensions/discussions)
+- ðŸ› Issues: [GitHub Issues](https://github.com/shubhamsugara22/snazzy-extensions/issues)
+- ðŸ’¬ Discussions: [GitHub Discussions](https://github.com/shubhamsugara22/snazzy-extensions/discussions)
 
 ---
 
-## 🎉 Acknowledgments
+## ðŸŽ‰ Acknowledgments
 
 - Chrome DevTools team for the Performance API
 - Web Vitals team for the metrics
@@ -217,8 +207,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-### ⭐ Star us on GitHub — it helps!
+### â­ Star us on GitHub â€” it helps!
 
-Made with ❤️ by developers, for developers
+Made with â¤ï¸ by developers, for developers
 
 </div>
