@@ -455,6 +455,36 @@ input[type="checkbox"] { width: auto; accent-color: var(--primary); }
 .flow-legend { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; font-size: 12.5px; color: var(--text-2); margin-bottom: 12px; }
 .flow-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
 .flow-hint { margin-left: auto; color: var(--muted); }
+/* ===== Walkthrough ===== */
+.tour-launch {
+  margin-top: 10px; width: 100%; background: var(--primary-soft); color: var(--primary);
+  border: 1px dashed #b7ccff;
+}
+.tour-launch:hover { background: #dce7ff; }
+.tour-spot {
+  position: fixed; z-index: 9998; border-radius: 12px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, .55), 0 0 0 3px var(--primary);
+  transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease;
+}
+.tour-pop {
+  position: fixed; z-index: 9999; width: 340px; max-width: calc(100vw - 24px);
+  background: var(--surface); border-radius: var(--radius); padding: 18px 20px 16px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, .35); animation: fadeIn .2s ease;
+}
+.tour-step { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--primary); }
+.tour-pop h4 { margin: 6px 0 8px; font-size: 17px; }
+.tour-pop p { margin: 0 0 14px; color: var(--text-2); font-size: 13.5px; line-height: 1.55; }
+.tour-dots { display: flex; gap: 6px; margin-bottom: 14px; }
+.tour-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--border-strong); }
+.tour-dots i.on { background: var(--primary); width: 20px; border-radius: 99px; }
+.tour-actions { display: flex; align-items: center; gap: 8px; }
+.tour-spacer { flex: 1; }
+.tour-skip { background: transparent; color: var(--muted); padding: 8px 4px; }
+.tour-skip:hover { color: var(--text); }
+.tour-back { background: var(--surface); border-color: var(--border-strong); color: var(--text); }
+.tour-next { background: var(--primary); color: #fff; }
+.tour-next:hover { background: var(--primary-hover); }
+
 /* ===== Responsive ===== */
 @media (max-width: 860px) {
   .app-shell { flex-direction: column; }

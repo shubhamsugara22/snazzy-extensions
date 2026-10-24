@@ -12,6 +12,7 @@ import { aiAnalyzer } from './modules/ai-analyzer.js';
 import { aiProviderClient } from './modules/ai-provider.js';
 import { botAnalyzer } from './modules/bot-analyzer.js';
 import { mountTrafficFlow, mountConnectionFlow } from './flow/flow.js';
+import { walkthrough } from './modules/walkthrough.js';
 
 // Cache DOM elements
 const DOM = {
@@ -1314,6 +1315,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize tab switching
   initTabSwitching();
   loadAiSettings();
+
+  const tourBtn = document.getElementById('start-tour');
+  if (tourBtn) tourBtn.addEventListener('click', () => walkthrough.start());
+  if (walkthrough.shouldAutoStart()) setTimeout(() => walkthrough.start(), 400);
   
   // Wire up collect metrics button
   const btn = document.getElementById('collectMetrics');
