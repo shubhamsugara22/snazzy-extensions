@@ -1,10 +1,10 @@
-﻿# ðŸš€ Snazzy Chrome Extensions
+# 🚀 Snazzy Chrome Extensions
 
 A collection of powerful, modern Chrome extensions built with cutting-edge technologies.
 
-## ðŸŒŸ Featured: Network Diagnostics Dashboard
+## 🌟 Featured: Network Diagnostics Dashboard
 
-### ðŸ¤– AI-Powered Performance Analysis Tool
+### 🤖 AI-Powered Performance Analysis Tool
 
 > **Transform your web performance monitoring with AI intelligence!**
 
@@ -14,29 +14,29 @@ A collection of powerful, modern Chrome extensions built with cutting-edge techn
 
 ---
 
-## âœ¨ What Makes This Extension Special?
+## ✨ What Makes This Extension Special?
 
-### ðŸŽ¯ AI-Powered Intelligence
+### 🎯 AI-Powered Intelligence
 - **Smart Performance Recommendations**: Our AI engine analyzes your site and provides actionable insights
 - **Predictive Analytics**: See exactly how much faster your site could be
 - **Automated Fix Suggestions**: Get code snippets and commands to implement optimizations instantly
 - **Pattern Recognition**: AI detects performance bottlenecks that traditional tools miss
 
-### ðŸ”¥ Features That Increase Productivity
+### 🔥 Features That Increase Productivity
 
-#### ðŸ¤– AI Analysis Engine
+#### 🤖 AI Analysis Engine
 - **Intelligent Performance Scoring**: Advanced algorithm that considers 6+ metrics
 - **Priority-Based Recommendations**: AI ranks issues by impact
 - **Quick Wins Detection**: Finds auto-fixable optimizations
 - **Impact Prediction**: Know exactly what you'll gain before making changes
 
-#### ðŸ“Š Comprehensive Diagnostics
+#### 📊 Comprehensive Diagnostics
 - **Core Web Vitals Monitoring**
-  - âš¡ LCP (Largest Contentful Paint)
-  - ðŸŽ¯ INP (Interaction to Next Paint)
-  - ðŸ“ CLS (Cumulative Layout Shift)
-  - ðŸš€ FCP (First Contentful Paint)
-  - â±ï¸ TTFB (Time to First Byte)
+  - ⚡ LCP (Largest Contentful Paint)
+  - 🎯 INP (Interaction to Next Paint)
+  - 📏 CLS (Cumulative Layout Shift)
+  - 🚀 FCP (First Contentful Paint)
+  - ⏱️ TTFB (Time to First Byte)
 
 - **Real-time Performance Tracking**
   - Bandwidth usage analysis
@@ -45,14 +45,14 @@ A collection of powerful, modern Chrome extensions built with cutting-edge techn
   - API call monitoring
   - Image optimization suggestions
 
-#### ðŸŽ¨ Clean, Light UI
+#### 🎨 Clean, Light UI
 - **Sidebar Navigation**: Clearly separated sections and cards
 - **Traffic Flow**: Interactive diagram of requests from the browser to the domains that serve them
 - **Connection Diagram**: DNS, TCP, TLS, request and response timing from browser to server
 - **Guided Tour**: A short walkthrough on first launch
 - **Responsive Layout**: Adapts to smaller windows
 
-#### ðŸš€ Advanced Tools
+#### 🚀 Advanced Tools
 - **Snapshot Export**: Share performance reports instantly
 - **Historical Tracking**: Track improvements over time
 - **Advanced Filtering**: Find exactly what you need
@@ -61,27 +61,7 @@ A collection of powerful, modern Chrome extensions built with cutting-edge techn
 
 ---
 
-## ðŸ“ˆ Why Developers Love It
-
-### ðŸ’¼ Professional Features
-```
-âœ… AI-powered insights save hours of debugging
-âœ… Predictive analytics show potential gains before changes
-âœ… Automated recommendations with implementation code
-âœ… Export reports for team collaboration
-âœ… Track performance trends over time
-```
-
-### ðŸŽ“ Perfect For
-- **Web Developers**: Debug performance issues fast
-- **DevOps Engineers**: Monitor production sites
-- **QA Teams**: Validate optimizations
-- **Product Managers**: Track user experience metrics
-- **SEO Specialists**: Optimize Core Web Vitals for rankings
-
----
-
-## ðŸš€ Installation
+## 🚀 Installation
 
 ### Manual Installation
 1. Clone this repository
@@ -101,7 +81,7 @@ git clone https://github.com/shubhamsugara22/snazzy-extensions.git
 
 ---
 
-## ðŸŽ¯ Quick Start Guide
+## 🎯 Quick Start Guide
 
 ### Step 1: Open the Dashboard
 1. Navigate to any website
@@ -122,9 +102,9 @@ git clone https://github.com/shubhamsugara22/snazzy-extensions.git
 
 ---
 
-## ðŸ¤– AI Features Explained
+## 🤖 AI Features Explained
 
-### ðŸ§  Smart Analysis
+### 🧠 Smart Analysis
 Our AI engine uses advanced heuristics and pattern recognition to:
 - Detect slow API calls and suggest caching strategies
 - Identify render-blocking resources
@@ -132,13 +112,13 @@ Our AI engine uses advanced heuristics and pattern recognition to:
 - Predict layout shift issues
 - Generate intelligent optimization paths
 
-### ðŸ“Š Predictive Impact
+### 📊 Predictive Impact
 Before you make any changes, see:
 - **Time Gained**: How much faster your site will load
 - **Bandwidth Saved**: How much data you'll reduce
 - **Score Improvement**: Expected performance score increase
 
-### âš¡ Automated Fixes
+### ⚡ Automated Fixes
 Get ready-to-use code for:
 - Image compression commands
 - Code splitting strategies
@@ -148,7 +128,7 @@ Get ready-to-use code for:
 
 ---
 
-## ðŸ› ï¸ Tech Stack
+## 🛠️ Tech Stack
 
 - **Frontend**: HTML5, CSS3 (light theme, sidebar layout)
 - **JavaScript**: ES6+ Modules
@@ -158,7 +138,7 @@ Get ready-to-use code for:
 
 ---
 
-## ðŸ“‹ Roadmap
+## 📋 Roadmap
 
 ### Coming Soon
 - [ ] Machine Learning model for even smarter predictions
@@ -172,7 +152,7 @@ Get ready-to-use code for:
 
 ---
 
-## ðŸ¤ Contributing
+## 🤝 Contributing
 
 We love contributions! Here's how you can help:
 
@@ -184,20 +164,20 @@ We love contributions! Here's how you can help:
 
 ---
 
-## ðŸ“„ License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## ðŸ’¬ Support
+## 💬 Support
 
-- ðŸ› Issues: [GitHub Issues](https://github.com/shubhamsugara22/snazzy-extensions/issues)
-- ðŸ’¬ Discussions: [GitHub Discussions](https://github.com/shubhamsugara22/snazzy-extensions/discussions)
+- 🐛 Issues: [GitHub Issues](https://github.com/shubhamsugara22/snazzy-extensions/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/shubhamsugara22/snazzy-extensions/discussions)
 
 ---
 
-## ðŸŽ‰ Acknowledgments
+## 🎉 Acknowledgments
 
 - Chrome DevTools team for the Performance API
 - Web Vitals team for the metrics
@@ -207,8 +187,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-### â­ Star us on GitHub â€” it helps!
+### ⭐ Star us on GitHub — it helps!
 
-Made with â¤ï¸ by developers, for developers
+Made with ❤️ by developers, for developers
 
 </div>
