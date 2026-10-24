@@ -1,4 +1,4 @@
-/* ===== Design tokens ===== */
+﻿/* ===== Design tokens ===== */
 :root {
   --bg: #f4f6fb;
   --surface: #ffffff;
@@ -297,7 +297,7 @@ input[type="checkbox"] { width: auto; accent-color: var(--primary); }
 .ai-recommendation-card .impact, .ai-suggestion-card .benefit { color: var(--good); font-size: 12.5px; font-weight: 600; }
 .ai-recommendation-card .suggestions, .ai-suggestion-card ul { list-style: none; margin: 8px 0 0; padding: 0; }
 .ai-recommendation-card .suggestions li, .ai-suggestion-card li { position: relative; padding-left: 16px; font-size: 13px; color: var(--text-2); margin-bottom: 3px; }
-.ai-recommendation-card .suggestions li::before, .ai-suggestion-card li::before { content: "›"; position: absolute; left: 4px; color: var(--primary); font-weight: 700; }
+.ai-recommendation-card .suggestions li::before, .ai-suggestion-card li::before { content: "â€º"; position: absolute; left: 4px; color: var(--primary); font-weight: 700; }
 
 .ai-impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 .ai-impact-card { background: var(--primary-soft); border-radius: var(--radius-sm); padding: 14px; text-align: center; }
@@ -444,6 +444,17 @@ input[type="checkbox"] { width: auto; accent-color: var(--primary); }
 
 #about p { color: var(--text-2); }
 
+/* ===== Flow diagrams ===== */
+.flow-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 22px 24px;
+}
+.flow-card > h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.flow-desc { margin: 0 0 16px; color: var(--muted); }
+.flow-empty { color: var(--muted); text-align: center; padding: 48px 16px; border: 1px dashed var(--border-strong); border-radius: var(--radius); background: var(--surface-2); }
+.flow-legend { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; font-size: 12.5px; color: var(--text-2); margin-bottom: 12px; }
+.flow-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.flow-hint { margin-left: auto; color: var(--muted); }
 /* ===== Responsive ===== */
 @media (max-width: 860px) {
   .app-shell { flex-direction: column; }

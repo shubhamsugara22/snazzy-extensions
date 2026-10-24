@@ -11,6 +11,7 @@ import { apiMonitor } from './modules/api-monitor.js';
 import { aiAnalyzer } from './modules/ai-analyzer.js';
 import { aiProviderClient } from './modules/ai-provider.js';
 import { botAnalyzer } from './modules/bot-analyzer.js';
+import { mountTrafficFlow, mountConnectionFlow } from './flow/flow.js';
 
 // Cache DOM elements
 const DOM = {
@@ -431,6 +432,16 @@ async function collectNetworkMetrics() {
     thirdPartyAnalyzer.render(thirdPartyAnalysis, 'third-party-analysis');
     document.getElementById('third-party-container').style.display = 'block';
 
+    mountTrafficFlow(document.getElementById('traffic-flow'), { resources, pageHost: currentDomain });
+    const [flowPublicIp, flowServerIp] = await Promise.all([
+      getPublicIp().catch(() => null),
+      currentDomain !== 'unknown' ? getServerIp(currentDomain).catch(() => null) : Promise.resolve(null)
+    ]);
+    const validIp = v => (v && !['Unavailable', 'Timeout', 'Not found'].includes(v) ? v : null);
+    mountConnectionFlow(document.getElementById('connection-flow'), {
+      nav, conn, resources, pageHost: currentDomain,
+      serverIp: validIp(flowServerIp), publicIp: validIp(flowPublicIp)
+    });
     // Generate recommendations
     const recommendations = recommendationsEngine.generateRecommendations(
       performanceMetrics,

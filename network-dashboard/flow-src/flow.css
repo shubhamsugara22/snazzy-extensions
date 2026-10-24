@@ -1,0 +1,57 @@
+.flow-wrap { display: flex; flex-direction: column; gap: 14px; }
+
+.flow-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: stretch; }
+.flow-stat { background: #f8fafc; border: 1px solid #e5e9f2; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; }
+.flow-stat span { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #64748b; }
+.flow-stat b { font-size: 18px; color: #0f172a; font-variant-numeric: tabular-nums; }
+.flow-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #475569; background: #f8fafc; border: 1px solid #e5e9f2; border-radius: 12px; padding: 10px 14px; cursor: pointer; }
+
+.flow-canvas { border: 1px solid #e5e9f2; border-radius: 14px; background: #f8fafc; overflow: hidden; }
+.flow-canvas .react-flow__node { cursor: grab; }
+.flow-canvas .react-flow__controls { box-shadow: 0 2px 8px rgba(15, 23, 42, .1); border-radius: 8px; overflow: hidden; }
+.flow-canvas .react-flow__controls-button { background: #fff; border-bottom: 1px solid #e5e9f2; color: #334155; fill: #334155; }
+.flow-canvas .react-flow__minimap { border: 1px solid #e5e9f2; border-radius: 8px; overflow: hidden; }
+.flow-canvas .react-flow__edge-path { stroke-linecap: round; }
+
+/* Node card */
+.fn {
+  width: 250px; background: #fff; border: 1px solid #d3d9e6; border-left: 4px solid var(--accent);
+  border-radius: 12px; padding: 10px 12px; box-shadow: 0 2px 6px rgba(15, 23, 42, .06);
+  transition: box-shadow .15s, opacity .15s, border-color .15s; font-family: inherit;
+}
+.fn:hover { box-shadow: 0 6px 16px rgba(15, 23, 42, .12); }
+.fn.is-selected { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.fn.is-dim { opacity: .35; }
+.fn-browser, .fn-server { width: 270px; }
+.fn-domain { width: 290px; }
+.fn-head { display: flex; align-items: center; gap: 10px; }
+.fn-icon {
+  flex-shrink: 0; width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center;
+  font-size: 15px; font-weight: 700; color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, #fff);
+}
+.fn-titles { min-width: 0; flex: 1; }
+.fn-title { font-size: 13.5px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fn-sub { font-size: 11.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fn-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: #e5e9f2; color: #475569; }
+.fn-badge.good { background: #e7f7ee; color: #15803d; }
+.fn-badge.bad { background: #ffecef; color: #c8102e; }
+.fn-rows { margin: 10px 0 0; padding-top: 8px; border-top: 1px solid #eef1f6; display: grid; gap: 4px; }
+.fn-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; }
+.fn-row dt { color: #64748b; }
+.fn-row dd { margin: 0; color: #0f172a; font-weight: 600; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.fn-handle { width: 8px !important; height: 8px !important; background: var(--accent) !important; border: 2px solid #fff !important; opacity: .9; }
+
+/* Timeline */
+.phase-card { background: #fff; border: 1px solid #e5e9f2; border-radius: 14px; padding: 16px 18px; }
+.phase-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.phase-head h4 { margin: 0; font-size: 14px; }
+.phase-head span { color: #64748b; font-size: 13px; font-weight: 600; }
+.phase-bar { display: flex; height: 16px; border-radius: 99px; overflow: hidden; gap: 2px; background: #f1f5f9; }
+.phase-seg { min-width: 4px; }
+.phase-legend { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px 18px; }
+.phase-legend li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #475569; }
+.phase-legend i { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.phase-legend span { flex: 1; }
+.phase-legend b { color: #0f172a; font-variant-numeric: tabular-nums; }
+.phase-note { margin: 12px 0 0; font-size: 12px; color: #64748b; }

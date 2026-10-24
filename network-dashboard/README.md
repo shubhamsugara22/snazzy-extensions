@@ -210,3 +210,7 @@ If remote AI does not work:
 - remote AI test/save workflow
 - safer local fallback behavior
 - cleaned and stabilized dashboard runtime
+
+## Rebuilding the flow diagrams
+
+The Traffic Flow and Connection Diagram tabs use React + React Flow, bundled into `flow/`. After editing `flow-src/`, run `npm install` then `npm run build:flow` and commit the `flow/` output.

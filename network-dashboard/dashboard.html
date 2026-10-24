@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Network Diagnostics Dashboard</title>
   <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="flow/flow.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -15,6 +16,9 @@
     <nav>
       <div class="nav-section">Overview</div>
       <button class="tab-btn active" data-tab="info"><span class="nav-icon">▦</span>Network Info</button>
+      <div class="nav-section">Visualize</div>
+      <button class="tab-btn" data-tab="traffic"><span class="nav-icon">⇄</span>Traffic Flow</button>
+      <button class="tab-btn" data-tab="connection"><span class="nav-icon">◎</span>Connection Diagram</button>
       <div class="nav-section">Operations</div>
       <button class="tab-btn" data-tab="tools"><span class="nav-icon">⌖</span>Diagnostics Tools</button>
       <div class="nav-section">Help</div>
@@ -318,6 +322,22 @@
         </div>
       </div>
     </section>
+    <section id="traffic" class="tab-content">
+      <div class="flow-card">
+        <h3>Traffic Flow</h3>
+        <p class="flow-desc">How requests flow from the browser through resource types to the domains that serve them.</p>
+        <div id="traffic-flow" class="flow-empty">Click “Collect Network Metrics” to generate the traffic flow.</div>
+      </div>
+    </section>
+
+    <section id="connection" class="tab-content">
+      <div class="flow-card">
+        <h3>Connection Diagram</h3>
+        <p class="flow-desc">The path of the page load from your browser to the server: DNS, TCP, TLS, request and response.</p>
+        <div id="connection-flow" class="flow-empty">Click “Collect Network Metrics” to generate the connection diagram.</div>
+      </div>
+    </section>
+
     <section id="tools" class="tab-content">
       <h2>Diagnostics Tools</h2>
       <div class="diag-controls">
